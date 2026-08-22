@@ -1,0 +1,57 @@
+export const destinations = [
+  {
+    id: 'bali-ubud',
+    title: 'Eco Stays in Ubud, Bali',
+    region: 'Ubud',
+    location: 'Ubud, Bali',
+    route: '/bali',
+    image: 'https://plus.unsplash.com/premium_photo-1730035378601-e4b6183f3398?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    overview: "Ubud is Bali's cultural and spiritual heart — rice terraces, sacred rivers, and ancient healing traditions. Every property here is independently verified for genuine sustainability. No greenwashing, just places doing the work.",
+    dataFile: 'bali-hotels',
+    available: true,
+  },
+  {
+    id: 'dolomites',
+    title: 'Biohotels in the Italian Dolomites',
+    region: 'Dolomites',
+    location: 'South Tyrol, Italy',
+    route: '/dolomites',
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
+    overview: 'The Italian Dolomites offer breathtaking alpine landscapes and some of Europe\'s most committed sustainable hospitality. These biohotels are independently certified and family-run.',
+    dataFile: 'dolomites-hotels',
+    available: false,
+  },
+  {
+    id: 'peru',
+    title: 'Sustainable Stays in Peru',
+    subtitle: 'Coming soon',
+    image: 'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&q=80',
+    route: '/peru',
+    available: false,
+  },
+  {
+    id: 'portugal',
+    title: 'Eco Hotels in Porto',
+    subtitle: 'Coming soon',
+    image: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80',
+    route: '/portugal',
+    available: false,
+  },
+  {
+    id: 'costa-rica',
+    title: 'Sustainable Paradise in Costa Rica',
+    subtitle: 'Coming soon',
+    image: 'https://images.unsplash.com/photo-1518259102261-b40117eabbc9?w=800&q=80',
+    route: '/costa-rica',
+    available: false,
+  },
+  {
+    id: 'morocco',
+    title: 'Eco Stays in Morocco',
+    subtitle: 'Coming soon',
+    image: 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800&q=80',
+    route: '/morocco',
+    available: false,
+  }
+  // add more here
+]

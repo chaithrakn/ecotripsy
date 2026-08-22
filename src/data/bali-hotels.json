@@ -1,0 +1,115 @@
+[
+    {
+        "id": "bambu-indah",
+        "name": "Bambu Indah",
+        "region": "Ubud",
+        "description": "Antique Javanese houses beside a sacred river.",
+        "pillars": ["Grow", "Connect"],
+        "url": "https://bambuindah.com",
+        "lat": -8.4965,
+        "lng": 115.2625,
+        "interests": ["culture", "wellness", "farming"]
+    },
+    {
+        "id": "mana-earthly-paradise",
+        "name": "Mana Earthly Paradise",
+        "region": "Ubud",
+        "description": "Next-generation eco-villas run by an NGO, built from earth bags and recycled wood, powered by solar, with a probiotic restaurant and permaculture garden.",
+        "pillars": ["Restore"],
+        "url": "https://www.manaubud.com",
+        "lat": -8.5069,
+        "lng": 115.2447,
+        "interests": ["wellness", "culture", "farming"]
+    },
+    {
+        "id": "sarinbuana-eco-lodge",
+        "name": "Sarinbuana Eco Lodge",
+        "region": "Tabanan",
+        "description": "Pioneering eco lodge on the rainforested slopes of Mount Batukaru, with bamboo bungalows, a permaculture garden, chemical-free pool, and guided jungle treks.",
+        "pillars": ["Grow", "Explore"],
+        "url": "https://www.baliecolodge.com",
+        "lat": -8.3925,
+        "lng": 115.0781,
+        "interests": ["farming", "adventure", "wildlife"]
+    },
+    {
+        "id": "bali-eco-stay",
+        "name": "Bali Eco Stay",
+        "region": "Tabanan",
+        "description": "Overwater bungalows above rice paddies in central Bali, powered by a private waterfall, with spring water, organic on-site food, and total immersion in nature.",
+        "pillars": ["Restore", "Explore"],
+        "url": "https://www.baliecostay.com",
+        "lat": -8.3950,
+        "lng": 115.0850,
+        "interests": ["wellness", "adventure", "farming"]
+    },
+    {
+        "id": "fivelements-retreat",
+        "name": "Fivelements Retreat Bali",
+        "region": "Ubud",
+        "description": "Award-winning eco-wellness sanctuary on the Ayung River, with bamboo villas, plant-based cuisine, traditional Balinese healing rituals, and over 90 global sustainability awards.",
+        "pillars": ["Restore", "Connect"],
+        "url": "https://fivelementsbali.com",
+        "lat": -8.5200,
+        "lng": 115.2100,
+        "interests": ["wellness", "culture", "farming"]
+    },
+    {
+        "id": "chapung-sebali",
+        "name": "Chapung Sebali",
+        "region": "Ubud",
+        "description": "Eco-luxury jungle resort above the Wos River Valley, blending traditional Indonesian and Scandinavian design with organic dining and uncompromising sustainability.",
+        "pillars": ["Grow", "Explore"],
+        "url": "https://chapung.com",
+        "lat": -8.4320,
+        "lng": 115.2780,
+        "interests": ["wellness", "adventure", "culture"]
+    },
+    {
+        "id": "arya-arkananta",
+        "name": "Arya Arkananta Resort & Spa",
+        "region": "Ubud",
+        "description": "Tranquil eco resort nestled in rice fields in Sayan, Ubud, with traditional wooden villas, therapeutic spa, vegetarian dining, and deep immersion in Balinese village life.",
+        "pillars": ["Restore", "Connect"],
+        "url": "https://aryaarkanantabali.com",
+        "lat": -8.5080,
+        "lng": 115.2420,
+        "interests": ["wellness", "culture", "farming"]
+    },
+    {
+        "id": "komaneka-bisma",
+        "name": "Komaneka at Bisma",
+        "region": "Ubud",
+        "description": "Travelife Gold certified boutique resort owned by a Balinese family, set on a slope above the Campuhan river valley with rice field views, Indonesian fine dining, and its own organic gardens.",
+        "pillars": ["Grow", "Connect"],
+        "url": "https://komaneka.com/resort/bisma",
+        "lat": -8.5063,
+        "lng": 115.2594,
+        "interests": ["culture", "wellness", "farming"]
+    },
+    {
+        "id": "bagus-jati",
+        "name": "Bagus Jati Health & Wellbeing Retreat",
+        "region": "Ubud",
+        "description": "Independent hilltop wellness retreat at 750m in Tegallalang, with yoga, Ayurveda, detox programs, organic cuisine, and guided nature treks rooted in Tri Hita Karana philosophy.",
+        "pillars": ["Restore", "Explore"],
+        "url": "https://bagusjati.com",
+        "lat": -8.4180,
+        "lng": 115.2820,
+        "interests": ["wellness", "adventure", "culture"]
+    },
+    {
+        "id": "swasti-eco-cottages",
+        "name": "Swasti Eco Cottages",
+        "region": "Ubud",
+        "description": "Charming family-run eco cottages in the quiet woodcarvers' village of Nyuh Kuning, with an organic garden and restaurant, eco-spa using 100% natural products, and a genuine community feel.",
+        "pillars": ["Grow", "Connect"],
+        "url": "https://swastiecoubud.com",
+        "lat": -8.5301,
+        "lng": 115.2638,
+        "interests": ["wellness", "culture", "farming"]
+    }
+]
+
+
+
