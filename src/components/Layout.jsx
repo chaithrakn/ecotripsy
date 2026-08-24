@@ -26,16 +26,26 @@ export default function Layout({ children, hideNav = false }) {
             onClick={() => navigate('/')}
             style={{ fontWeight: 700, fontSize: '18px', color: '#111827', cursor: 'pointer' }}
           >
-                Sustivo
+                    <img
+    src="/greenlugg-logo.png"
+    alt="Greenlugg"
+    style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
+    onClick={() => navigate('/')}
+    />
           </span>
-          <p style={{ textAlign: 'center', fontSize: '14px', color: '#2e3034', letterSpacing: '0.08em', margin: '6px 0 0' }}>
+          <p style={{ textAlign: 'center', fontSize: '14px', fontWeight: 700, color: '#2e3034', letterSpacing: '0.08em', margin: '6px 0 0',  }}>
                 curated sustainable travel
          </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             <span onClick={() => navigate('/')} style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>All</span>
             <span onClick={() => navigate('/')} style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Destinations</span>
             <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
-            <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>🔍</span>
+            <span style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+            </span>
           </div>
         </div>
       </nav>

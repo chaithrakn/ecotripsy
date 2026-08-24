@@ -1,54 +1,28 @@
 import { useState } from 'react'
+import { buildItinerary } from '../lib/itinerary'
 
-export default function TripForm({ hotels, onItinerary }) {
-  const [days, setDays] = useState(2)
+export default function TripForm({ hotels, regionId, onItinerary }) {
+  const [days, setDays] = useState(3)
   const [selectedHotel, setSelectedHotel] = useState(hotels[0]?.id || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-   /*async function handleSubmit() {
+  async function handleSubmit() {
     setLoading(true)
     setError(null)
 
     const hotel = hotels.find(h => h.id === selectedHotel)
 
     try {
-      const response = await fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ days, hotel })
-      })
-      const data = await response.json()
-      onItinerary(data)
+      const itinerary = await buildItinerary({ regionId, days, hotel })
+      onItinerary(itinerary)
     } catch (err) {
+      console.error('Failed to build itinerary:', err)
       setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
-  } */
-
-    async function handleSubmit() {
-  setLoading(true)
-
-  await new Promise(r => setTimeout(r, 1000))
-
-  const hotel = hotels.find(h => h.id === selectedHotel)
-
-  onItinerary({
-    days: Array.from({ length: days }, (_, i) => ({
-      day: i + 1,
-      title: i === 0 ? 'Arrive & Settle In' : i === 1 ? 'Rice Terraces & Culture' : 'Healing & Farewell',
-      narrative: i === 0
-        ? `Check into ${hotel.name} and spend the afternoon exploring the riverside gardens and sacred springs nearby.`
-        : i === 1
-        ? `Morning walk through Tegalalang rice terraces, afternoon traditional cooking class using organic produce.`
-        : `Begin the day with sunrise yoga, followed by a traditional Balinese healing ceremony before heading out.`,
-      hotel: hotel.name
-    }))
-  })
-
-  setLoading(false)
-}
+  }
 
   return (
     <div>
@@ -65,7 +39,7 @@ export default function TripForm({ hotels, onItinerary }) {
           How many days?
         </p>
         <div style={{ display: 'flex', gap: '10px' }}>
-          {[1, 2, 3].map(d => (
+          {[2, 3].map(d => (
             <button
               key={d}
               onClick={() => setDays(d)}

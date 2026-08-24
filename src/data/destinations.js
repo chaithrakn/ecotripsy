@@ -5,7 +5,7 @@ export const destinations = [
     region: 'Ubud',
     location: 'Ubud, Bali',
     route: '/bali',
-    image: 'https://plus.unsplash.com/premium_photo-1730035378601-e4b6183f3398?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    image: 'https://images.unsplash.com/photo-1559628233-eb1b1a45564b?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     overview: "Ubud is Bali's cultural and spiritual heart — rice terraces, sacred rivers, and ancient healing traditions. Every property here is independently verified for genuine sustainability. No greenwashing, just places doing the work.",
     dataFile: 'bali-hotels',
     available: true,

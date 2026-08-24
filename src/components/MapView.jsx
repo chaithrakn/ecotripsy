@@ -1,15 +1,86 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+function pinSvg(color, size) {
+  const w = size
+  const h = Math.round(size * 30 / 22)
+  return `<svg width="${w}" height="${h}" viewBox="0 0 22 30" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11 0C4.9 0 0 4.9 0 11c0 8.25 11 19 11 19s11-10.75 11-19C22 4.9 17.1 0 11 0z" fill="${color}"/>
+    <circle cx="11" cy="11" r="4.5" fill="white"/>
+  </svg>`
+}
+
+function outlinePinSvg(color, size) {
+  const w = size
+  const h = Math.round(size * 30 / 22)
+  return `<svg width="${w}" height="${h}" viewBox="0 0 22 30" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11 1C5.5 1 1 5.5 1 11c0 8 10 18 10 18s10-10 10-18C21 5.5 16.5 1 11 1z" fill="white" stroke="${color}" stroke-width="2"/>
+    <circle cx="11" cy="11" r="3.5" fill="${color}"/>
+  </svg>`
+}
+
+const hotelIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#0F6E56;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.35);"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+  tooltipAnchor: [0, -7],
 })
 
-export default function MapView({ hotels }) {
-  const center = [-8.5069, 115.2625]
+const hotelHighlightedIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:20px;height:20px;border-radius:50%;background:#F59E0B;border:3px solid white;box-shadow:0 0 0 2px #F59E0B;"></div>',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+  tooltipAnchor: [0, -10],
+})
+
+const attractionIcon = L.divIcon({
+  className: '',
+  html: pinSvg('#4F46E5', 16),
+  iconSize: [16, 22],
+  iconAnchor: [8, 22],
+  popupAnchor: [0, -22],
+  tooltipAnchor: [0, -22],
+})
+
+const attractionHighlightedIcon = L.divIcon({
+  className: '',
+  html: pinSvg('#F59E0B', 20),
+  iconSize: [20, 27],
+  iconAnchor: [10, 27],
+  popupAnchor: [0, -27],
+  tooltipAnchor: [0, -27],
+})
+
+const alternativeIcon = L.divIcon({
+  className: '',
+  html: outlinePinSvg('#4F46E5', 13),
+  iconSize: [13, 18],
+  iconAnchor: [7, 18],
+  popupAnchor: [0, -18],
+  tooltipAnchor: [0, -18],
+})
+
+const alternativeHighlightedIcon = L.divIcon({
+  className: '',
+  html: outlinePinSvg('#F59E0B', 17),
+  iconSize: [17, 23],
+  iconAnchor: [9, 23],
+  popupAnchor: [0, -23],
+  tooltipAnchor: [0, -23],
+})
+
+function iconFor(place, highlightedId) {
+  const isHighlighted = place.id === highlightedId
+  if (place.kind === 'hotel') return isHighlighted ? hotelHighlightedIcon : hotelIcon
+  if (place.kind === 'alternative') return isHighlighted ? alternativeHighlightedIcon : alternativeIcon
+  return isHighlighted ? attractionHighlightedIcon : attractionIcon
+}
+
+export default function MapView({ places, highlightedId }) {
+  const plottable = places.filter(p => p.lat != null && p.lng != null)
+  const center = plottable[0] ? [plottable[0].lat, plottable[0].lng] : [-8.5069, 115.2625]
 
   return (
     <MapContainer
@@ -19,23 +90,38 @@ export default function MapView({ hotels }) {
       scrollWheelZoom={false}
     >
       <TileLayer
-      url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        //url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        //attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        
-        //attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
-      {hotels.map((hotel) => (
-        <Marker key={hotel.id} position={[hotel.lat, hotel.lng]}>
+      {plottable.map((place) => (
+        <Marker
+          key={place.id}
+          position={[place.lat, place.lng]}
+          icon={iconFor(place, highlightedId)}
+          eventHandlers={{
+            mouseover: (e) => e.target.openPopup(),
+            mouseout: (e) => e.target.closePopup(),
+          }}
+        >
           <Popup>
             <div>
-              <p style={{ fontWeight: 600 }}>{hotel.name}</p>
-              <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}>{hotel.region}</p>
-              <a href={hotel.url} target="_blank" rel="noopener noreferrer" style={{ color: '#0F6E56', fontSize: '12px' }}>
-                Visit website
-              </a>
+              {place.kind === 'alternative' && (
+                <p style={{ color: '#4F46E5', fontSize: '11px', fontWeight: 600, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Alternative
+                </p>
+              )}
+              <p style={{ fontWeight: 600 }}>{place.name}</p>
+              {place.description && (
+                <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}>{place.description}</p>
+              )}
+              {place.entryFee && (
+                <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}>Entry: {place.entryFee}</p>
+              )}
+              {place.url && (
+                <a href={place.url} target="_blank" rel="noopener noreferrer" style={{ color: '#0F6E56', fontSize: '12px' }}>
+                  Visit website
+                </a>
+              )}
             </div>
           </Popup>
         </Marker>

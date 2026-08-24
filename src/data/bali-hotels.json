@@ -2,6 +2,7 @@
     {
         "id": "bambu-indah",
         "name": "Bambu Indah",
+        "image": "images/hotels/bali/bambu-indah.jpg",
         "region": "Ubud",
         "description": "Antique Javanese houses beside a sacred river.",
         "pillars": ["Grow", "Connect"],
@@ -13,6 +14,7 @@
     {
         "id": "mana-earthly-paradise",
         "name": "Mana Earthly Paradise",
+        "image": "images/hotels/bali/mana-earthly-paradise.jpg",
         "region": "Ubud",
         "description": "Next-generation eco-villas run by an NGO, built from earth bags and recycled wood, powered by solar, with a probiotic restaurant and permaculture garden.",
         "pillars": ["Restore"],
@@ -24,6 +26,7 @@
     {
         "id": "sarinbuana-eco-lodge",
         "name": "Sarinbuana Eco Lodge",
+        "image": "images/hotels/bali/sarinbuana-eco-lodge.jpg",
         "region": "Tabanan",
         "description": "Pioneering eco lodge on the rainforested slopes of Mount Batukaru, with bamboo bungalows, a permaculture garden, chemical-free pool, and guided jungle treks.",
         "pillars": ["Grow", "Explore"],
@@ -35,6 +38,7 @@
     {
         "id": "bali-eco-stay",
         "name": "Bali Eco Stay",
+        "image": "images/hotels/bali/bali-eco-stay.jpg",
         "region": "Tabanan",
         "description": "Overwater bungalows above rice paddies in central Bali, powered by a private waterfall, with spring water, organic on-site food, and total immersion in nature.",
         "pillars": ["Restore", "Explore"],
@@ -46,6 +50,7 @@
     {
         "id": "fivelements-retreat",
         "name": "Fivelements Retreat Bali",
+        "image": "images/hotels/bali/fivelements-retreat.jpg",
         "region": "Ubud",
         "description": "Award-winning eco-wellness sanctuary on the Ayung River, with bamboo villas, plant-based cuisine, traditional Balinese healing rituals, and over 90 global sustainability awards.",
         "pillars": ["Restore", "Connect"],
@@ -57,6 +62,7 @@
     {
         "id": "chapung-sebali",
         "name": "Chapung Sebali",
+        "image": "images/hotels/bali/chapung-sebali.jpg",
         "region": "Ubud",
         "description": "Eco-luxury jungle resort above the Wos River Valley, blending traditional Indonesian and Scandinavian design with organic dining and uncompromising sustainability.",
         "pillars": ["Grow", "Explore"],
@@ -68,6 +74,7 @@
     {
         "id": "arya-arkananta",
         "name": "Arya Arkananta Resort & Spa",
+        "image": "images/hotels/bali/arya-arkananta.jpg",
         "region": "Ubud",
         "description": "Tranquil eco resort nestled in rice fields in Sayan, Ubud, with traditional wooden villas, therapeutic spa, vegetarian dining, and deep immersion in Balinese village life.",
         "pillars": ["Restore", "Connect"],
@@ -79,6 +86,7 @@
     {
         "id": "komaneka-bisma",
         "name": "Komaneka at Bisma",
+        "image": "images/hotels/bali/komaneka-bisma.jpg",
         "region": "Ubud",
         "description": "Travelife Gold certified boutique resort owned by a Balinese family, set on a slope above the Campuhan river valley with rice field views, Indonesian fine dining, and its own organic gardens.",
         "pillars": ["Grow", "Connect"],
@@ -90,6 +98,7 @@
     {
         "id": "bagus-jati",
         "name": "Bagus Jati Health & Wellbeing Retreat",
+        "image": "images/hotels/bali/bagus-jati.jpg",
         "region": "Ubud",
         "description": "Independent hilltop wellness retreat at 750m in Tegallalang, with yoga, Ayurveda, detox programs, organic cuisine, and guided nature treks rooted in Tri Hita Karana philosophy.",
         "pillars": ["Restore", "Explore"],
@@ -101,6 +110,7 @@
     {
         "id": "swasti-eco-cottages",
         "name": "Swasti Eco Cottages",
+        "image": "images/hotels/bali/swasti-eco-cottages.jpg",
         "region": "Ubud",
         "description": "Charming family-run eco cottages in the quiet woodcarvers' village of Nyuh Kuning, with an organic garden and restaurant, eco-spa using 100% natural products, and a genuine community feel.",
         "pillars": ["Grow", "Connect"],

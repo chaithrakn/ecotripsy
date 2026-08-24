@@ -6,19 +6,32 @@ const PILLAR_COLORS = {
   Explore: { bg: '#EEEDFE', color: '#534AB7' },
 }
 
-export default function PropertyCard({ hotel }) {
+export default function PropertyCard({ hotel, highlighted, onHighlight }) {
   return (
-    <div style={{ display: 'flex', gap: '16px', padding: '24px 0', borderBottom: '1px solid #f3f4f6' }}>
+    <div
+      onMouseEnter={() => onHighlight?.(hotel.id)}
+      onMouseLeave={() => onHighlight?.(null)}
+      onClick={() => onHighlight?.(hotel.id)}
+      style={{
+        display: 'flex',
+        gap: '16px',
+        padding: '24px',
+        margin: '0 -24px',
+        borderRadius: '10px',
+        borderBottom: '1px solid #f3f4f6',
+        backgroundColor: highlighted ? '#f0faf6' : 'transparent',
+        cursor: 'pointer'
+      }}
+    >
       <img
-        src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80"
+        src={hotel.image}
         alt={hotel.name}
-        style={{ width: '128px', height: '96px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
+        style={{ width: '200px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, alignSelf: 'stretch' }}
       />
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h3 style={{ fontWeight: 600, color: '#111827', margin: 0 }}>{hotel.name}</h3>
-            <p style={{ fontSize: '13px', color: '#6b7280', margin: '2px 0 8px' }}>{hotel.region}, Bali</p>
           </div>
           <a
             href={hotel.url}
