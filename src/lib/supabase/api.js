@@ -60,6 +60,19 @@ export async function getAttractionsByRegion(regionId) {
   return data
 }
 
+export async function getAttractionsByRegions(regionIds) {
+  if (!regionIds || regionIds.length === 0) return []
+  const { data, error } = await supabase.from('attractions').select('*').in('region_id', regionIds)
+  if (error) throw error
+  return data
+}
+
+export async function getTripTemplatesByDestination(destinationId) {
+  const { data, error } = await supabase.from('trip_templates').select('*').eq('destination_id', destinationId)
+  if (error) throw error
+  return data
+}
+
 export async function getLatestContentPages(limit = 6) {
   const { data, error } = await supabase
     .from('content_pages')

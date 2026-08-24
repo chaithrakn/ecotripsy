@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { buildItinerary } from '../lib/itinerary'
+import { buildItinerary, buildTripItinerary } from '../lib/itinerary'
 
-export default function TripForm({ hotels, regionId, onItinerary }) {
-  const [days, setDays] = useState(3)
+const DAYS = 3
+
+export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }) {
   const [selectedHotel, setSelectedHotel] = useState(hotels[0]?.id || '')
+  const [selectedLegHotels, setSelectedLegHotels] = useState({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -11,11 +13,21 @@ export default function TripForm({ hotels, regionId, onItinerary }) {
     setLoading(true)
     setError(null)
 
-    const hotel = hotels.find(h => h.id === selectedHotel)
-
     try {
-      const itinerary = await buildItinerary({ regionId, days, hotel })
-      onItinerary(itinerary)
+      if (tripTemplate) {
+        const orderedHotels = tripTemplate.legs.map(leg =>
+          hotels.find(h => h.id === selectedLegHotels[leg.region_id])
+        )
+        if (orderedHotels.some(h => !h)) {
+          throw new Error('Select a hotel for every leg')
+        }
+        const itinerary = await buildTripItinerary({ template: tripTemplate, hotels: orderedHotels })
+        onItinerary(itinerary)
+      } else {
+        const hotel = hotels.find(h => h.id === selectedHotel)
+        const itinerary = await buildItinerary({ regionId, days: DAYS, hotel })
+        onItinerary(itinerary)
+      }
     } catch (err) {
       console.error('Failed to build itinerary:', err)
       setError('Something went wrong. Please try again.')
@@ -24,41 +36,88 @@ export default function TripForm({ hotels, regionId, onItinerary }) {
     }
   }
 
+  if (tripTemplate) {
+    const canSubmit = tripTemplate.legs.every(leg => selectedLegHotels[leg.region_id])
+
+    return (
+      <div>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>
+          {tripTemplate.name}
+        </h2>
+        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '28px' }}>
+          {tripTemplate.body.length} days · pick a hotel for each leg of the trip.
+        </p>
+
+        {tripTemplate.legs.map(leg => (
+          <div key={leg.region_id} style={{ marginBottom: '28px' }}>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
+              {leg.label}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {hotels.filter(hotel => hotel.region_id === leg.region_id).map(hotel => (
+                <label
+                  key={hotel.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: `1px solid ${selectedLegHotels[leg.region_id] === hotel.id ? '#0F6E56' : '#e5e7eb'}`,
+                    backgroundColor: selectedLegHotels[leg.region_id] === hotel.id ? '#f0faf6' : 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name={`hotel-${leg.region_id}`}
+                    value={hotel.id}
+                    checked={selectedLegHotels[leg.region_id] === hotel.id}
+                    onChange={() => setSelectedLegHotels(s => ({ ...s, [leg.region_id]: hotel.id }))}
+                    style={{ accentColor: '#0F6E56' }}
+                  />
+                  <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
+                    {hotel.name}
+                  </p>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !canSubmit}
+          style={{
+            width: '100%',
+            padding: '12px',
+            backgroundColor: loading || !canSubmit ? '#9ca3af' : '#0F6E56',
+            color: 'white',
+            border: 'none',
+            borderRadius: '10px',
+            fontSize: '15px',
+            fontWeight: 600,
+            cursor: loading || !canSubmit ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {loading ? 'Generating...' : 'Generate Itinerary →'}
+        </button>
+
+        {error && (
+          <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>{error}</p>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div>
       <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>
-        Plan Your Ubud Trip
+        Plan Your Trip
       </h2>
       <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '28px' }}>
         Select your stay and we'll build a day-by-day itinerary.
       </p>
-
-      {/* Number of days */}
-      <div style={{ marginBottom: '28px' }}>
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
-          How many days?
-        </p>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {[2, 3].map(d => (
-            <button
-              key={d}
-              onClick={() => setDays(d)}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '999px',
-                border: `1px solid ${days === d ? '#0F6E56' : '#d1d5db'}`,
-                backgroundColor: days === d ? '#0F6E56' : 'white',
-                color: days === d ? 'white' : '#374151',
-                fontWeight: days === d ? 600 : 400,
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              {d} {d === 1 ? 'day' : 'days'}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Hotel selection */}
       <div style={{ marginBottom: '32px' }}>
@@ -88,14 +147,9 @@ export default function TripForm({ hotels, regionId, onItinerary }) {
                 onChange={() => setSelectedHotel(hotel.id)}
                 style={{ accentColor: '#0F6E56' }}
               />
-              <div>
-                <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
-                  {hotel.name}
-                </p>
-                <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
-                  {hotel.region}
-                </p>
-              </div>
+              <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
+                {hotel.name}
+              </p>
             </label>
           ))}
         </div>

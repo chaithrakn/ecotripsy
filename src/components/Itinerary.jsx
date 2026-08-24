@@ -47,6 +47,46 @@ export default function Itinerary({ data, highlightedId, onHighlight }) {
               ))}
             </ul>
           )}
+          {day.optionalActivities?.length > 0 && (
+            <div style={{ margin: '0 0 8px' }}>
+              <p style={{ fontSize: '12px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
+                Optional but recommended
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                {day.optionalActivities.map((activity, i) => (
+                  <li
+                    key={i}
+                    onMouseEnter={() => onHighlight?.(activity.id)}
+                    onMouseLeave={() => onHighlight?.(null)}
+                    onClick={() => onHighlight?.(activity.id)}
+                    style={{
+                      fontSize: '14px',
+                      color: '#6b7280',
+                      lineHeight: 1.7,
+                      marginBottom: '4px',
+                      cursor: 'pointer',
+                      borderRadius: '6px',
+                      padding: '2px 6px',
+                      marginLeft: '-6px',
+                      backgroundColor: highlightedId === activity.id ? '#f0faf6' : 'transparent'
+                    }}
+                  >
+                    <strong style={{ color: '#374151', fontWeight: 600 }}>{activity.name}</strong> — {activity.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {day.note && (
+            <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px', fontStyle: 'italic' }}>
+              {day.note}
+            </p>
+          )}
+          {day.checkinNote && (
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', lineHeight: 1.7, margin: '0 0 8px' }}>
+              {day.checkinNote}
+            </p>
+          )}
           {day.departNote && (
             <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px' }}>
               {day.departNote}

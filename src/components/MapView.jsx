@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { useEffect } from 'react'
 import L from 'leaflet'
 
 function pinSvg(color, size) {
@@ -78,17 +79,36 @@ function iconFor(place, highlightedId) {
   return isHighlighted ? attractionHighlightedIcon : attractionIcon
 }
 
+function FitBounds({ places }) {
+  const map = useMap()
+  const key = places.map(p => `${p.id}:${p.lat},${p.lng}`).join('|')
+
+  useEffect(() => {
+    if (places.length === 0) return
+    if (places.length === 1) {
+      map.setView([places[0].lat, places[0].lng], 13)
+      return
+    }
+    const bounds = L.latLngBounds(places.map(p => [p.lat, p.lng]))
+    map.fitBounds(bounds, { padding: [40, 40] })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, map])
+
+  return null
+}
+
 export default function MapView({ places, highlightedId }) {
   const plottable = places.filter(p => p.lat != null && p.lng != null)
-  const center = plottable[0] ? [plottable[0].lat, plottable[0].lng] : [-8.5069, 115.2625]
+  const fallbackCenter = [-8.5069, 115.2625]
 
   return (
     <MapContainer
-      center={center}
+      center={fallbackCenter}
       zoom={12}
       style={{ height: '100%', width: '100%', minHeight: '500px' }}
       scrollWheelZoom={false}
     >
+      <FitBounds places={plottable} />
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -104,7 +124,14 @@ export default function MapView({ places, highlightedId }) {
           }}
         >
           <Popup>
-            <div>
+            <div style={{ width: place.image ? '180px' : 'auto' }}>
+              {place.image && (
+                <img
+                  src={place.image}
+                  alt={place.name}
+                  style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', marginBottom: '6px' }}
+                />
+              )}
               {place.kind === 'alternative' && (
                 <p style={{ color: '#4F46E5', fontSize: '11px', fontWeight: 600, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Alternative

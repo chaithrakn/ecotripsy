@@ -5,7 +5,7 @@ import MapView from '../components/MapView'
 import PropertyCard from '../components/PropertyCard'
 import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
-import { getContentPageBySlug, getDestinations, getAttractionsByRegion } from '../lib/supabase/api'
+import { getContentPageBySlug, getDestinations, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
 
 export default function ArticlePage() {
   const { slug } = useParams()
@@ -17,6 +17,7 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true)
   const [highlightedId, setHighlightedId] = useState(null)
   const [attractions, setAttractions] = useState([])
+  const [tripTemplate, setTripTemplate] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -34,15 +35,28 @@ export default function ArticlePage() {
 
   useEffect(() => {
     if (!article) return
-    const regionId = article.body
-      .filter(block => block.type === 'hotel_list')
-      .flatMap(block => block.hotels)[0]?.region_id
-    if (!regionId) { setAttractions([]); return }
+    const regionIds = [...new Set(
+      article.body
+        .filter(block => block.type === 'hotel_list')
+        .flatMap(block => block.hotels)
+        .map(hotel => hotel.region_id)
+        .filter(Boolean)
+    )]
+    if (regionIds.length === 0) { setAttractions([]); return }
 
     let cancelled = false
-    getAttractionsByRegion(regionId)
+    getAttractionsByRegions(regionIds)
       .then(data => { if (!cancelled) setAttractions(data) })
       .catch(err => console.error('Failed to load attractions:', err))
+    return () => { cancelled = true }
+  }, [article])
+
+  useEffect(() => {
+    if (!article?.destination_id) { setTripTemplate(null); return }
+    let cancelled = false
+    getTripTemplatesByDestination(article.destination_id)
+      .then(data => { if (!cancelled) setTripTemplate(data[0] || null) })
+      .catch(err => console.error('Failed to load trip templates:', err))
     return () => { cancelled = true }
   }, [article])
 
@@ -73,15 +87,18 @@ export default function ArticlePage() {
   const mapPlaces = itinerary
     ? Object.values(
         Object.fromEntries(
-          itinerary.days.flatMap(day => [
-            ...day.activities.map(a => [a.id, { id: a.id, name: a.name, description: a.description, lat: a.lat, lng: a.lng, kind: 'attraction' }]),
-            ...day.activities.flatMap(a => alternativePlaces(a.id, a.alternatives)).map(p => [p.id, p]),
-            [day.hotel.id, { id: day.hotel.id, name: day.hotel.name, description: day.hotel.description, url: day.hotel.url, lat: day.hotel.lat, lng: day.hotel.lng, kind: 'hotel' }]
-          ])
+          itinerary.days.flatMap(day => {
+            const allActivities = [...day.activities, ...(day.optionalActivities || [])]
+            return [
+              ...allActivities.map(a => [a.id, { id: a.id, name: a.name, description: a.description, lat: a.lat, lng: a.lng, kind: 'attraction' }]),
+              ...allActivities.flatMap(a => alternativePlaces(a.id, a.alternatives)).map(p => [p.id, p]),
+              [day.hotel.id, { id: day.hotel.id, name: day.hotel.name, description: day.hotel.description, url: day.hotel.url, image: day.hotel.image, lat: day.hotel.lat, lng: day.hotel.lng, kind: 'hotel' }]
+            ]
+          })
         )
       )
     : [
-        ...hotels.map(hotel => ({ id: hotel.id, name: hotel.name, description: hotel.description, url: hotel.url, lat: hotel.lat, lng: hotel.lng, kind: 'hotel' })),
+        ...hotels.map(hotel => ({ id: hotel.id, name: hotel.name, description: hotel.description, url: hotel.url, image: hotel.image, lat: hotel.lat, lng: hotel.lng, kind: 'hotel' })),
         ...attractions.map(a => ({ id: a.id, name: a.name, description: a.description, lat: a.lat, lng: a.lng, kind: 'attraction' })),
         ...attractions.flatMap(a => alternativePlaces(a.id, a.alternatives))
       ]
@@ -263,6 +280,7 @@ export default function ArticlePage() {
               <TripForm
                 hotels={hotels}
                 regionId={hotels[0]?.region_id}
+                tripTemplate={tripTemplate}
                 onItinerary={(result) => setItinerary(result)}
               />
             ) : (
