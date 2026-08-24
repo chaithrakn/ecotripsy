@@ -59,7 +59,7 @@ export default function Layout({ children, hideNav = false }) {
       <footer style={{ backgroundColor: '#111827', color: 'white', padding: '48px 40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '48px' }}>
           <div style={{ maxWidth: '400px' }}>
-            <p style={{ fontWeight: 700, fontSize: '18px', marginBottom: '12px' }}>Sustivo</p>
+            <p style={{ fontWeight: 700, fontSize: '18px', marginBottom: '12px' }}>greenlugg</p>
             <p style={{ fontSize: '14px', color: '#9ca3af', lineHeight: 1.7 }}>
               We curate the world's best sustainable travel experiences — eco lodges, farm stays, and conservation experiences that do more good than harm.
             </p>
