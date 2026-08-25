@@ -63,7 +63,7 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
                     gap: '12px',
                     padding: '12px 16px',
                     borderRadius: '10px',
-                    border: `1px solid ${selectedLegHotels[leg.region_id] === hotel.id ? '#0F6E56' : '#e5e7eb'}`,
+                    border: `1px solid ${selectedLegHotels[leg.region_id] === hotel.id ? '#0F2E1D' : '#e5e7eb'}`,
                     backgroundColor: selectedLegHotels[leg.region_id] === hotel.id ? '#f0faf6' : 'white',
                     cursor: 'pointer'
                   }}
@@ -74,7 +74,7 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
                     value={hotel.id}
                     checked={selectedLegHotels[leg.region_id] === hotel.id}
                     onChange={() => setSelectedLegHotels(s => ({ ...s, [leg.region_id]: hotel.id }))}
-                    style={{ accentColor: '#0F6E56' }}
+                    style={{ accentColor: '#0F2E1D' }}
                   />
                   <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
                     {hotel.name}
@@ -91,7 +91,7 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
           style={{
             width: '100%',
             padding: '12px',
-            backgroundColor: loading || !canSubmit ? '#9ca3af' : '#0F6E56',
+            backgroundColor: loading || !canSubmit ? '#9ca3af' : '#0F2E1D',
             color: 'white',
             border: 'none',
             borderRadius: '10px',
@@ -134,7 +134,7 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
                 gap: '12px',
                 padding: '12px 16px',
                 borderRadius: '10px',
-                border: `1px solid ${selectedHotel === hotel.id ? '#0F6E56' : '#e5e7eb'}`,
+                border: `1px solid ${selectedHotel === hotel.id ? '#0F2E1D' : '#e5e7eb'}`,
                 backgroundColor: selectedHotel === hotel.id ? '#f0faf6' : 'white',
                 cursor: 'pointer'
               }}
@@ -145,7 +145,7 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
                 value={hotel.id}
                 checked={selectedHotel === hotel.id}
                 onChange={() => setSelectedHotel(hotel.id)}
-                style={{ accentColor: '#0F6E56' }}
+                style={{ accentColor: '#0F2E1D' }}
               />
               <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
                 {hotel.name}
@@ -162,7 +162,7 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
         style={{
           width: '100%',
           padding: '12px',
-          backgroundColor: loading ? '#9ca3af' : '#0F6E56',
+          backgroundColor: loading ? '#9ca3af' : '#0F2E1D',
           color: 'white',
           border: 'none',
           borderRadius: '10px',

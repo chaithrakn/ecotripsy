@@ -84,6 +84,16 @@ export async function getLatestContentPages(limit = 6) {
   return data
 }
 
+export async function getAllContentPages() {
+  const { data, error } = await supabase
+    .from('content_pages')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 const PRICE_RANGE_ORDER = { budget: 0, mid: 1, luxury: 2 }
 
 function sortHotels(hotels, sortBy) {
@@ -110,9 +120,10 @@ async function getRegionIdsForArticle(article) {
 }
 
 async function resolveHotelListBlock(regionIds, block) {
-  if (regionIds.length === 0) return { ...block, hotels: [] }
+  const scopedRegionIds = block.region_id ? [block.region_id] : regionIds
+  if (scopedRegionIds.length === 0) return { ...block, hotels: [] }
 
-  let query = supabase.from('hotels').select('*').in('region_id', regionIds)
+  let query = supabase.from('hotels').select('*').in('region_id', scopedRegionIds)
   if (block.price_range) query = query.eq('price_range', block.price_range)
   if (block.certified !== undefined) query = query.eq('certified', block.certified)
   if (block.pillars?.length > 0) query = query.contains('pillars', block.pillars)
@@ -122,9 +133,20 @@ async function resolveHotelListBlock(regionIds, block) {
   return { ...block, hotels: sortHotels(data, block.sort_by) }
 }
 
-async function getTourCompaniesForRegions(regionIds) {
-  if (regionIds.length === 0) return []
-  const { data, error } = await supabase.from('tour_companies').select('*').in('region_id', regionIds)
+async function resolveTourListBlock(block) {
+  if (!block.region_id) return { ...block, tours: [] }
+  const { data, error } = await supabase.from('tour_companies').select('*').eq('region_id', block.region_id)
+  if (error) throw error
+  return { ...block, tours: data }
+}
+
+async function getDestinationWideTourCompanies(destinationId) {
+  if (!destinationId) return []
+  const { data, error } = await supabase
+    .from('tour_companies')
+    .select('*')
+    .eq('destination_id', destinationId)
+    .is('region_id', null)
   if (error) throw error
   return data
 }
@@ -134,8 +156,12 @@ async function resolveContentBlocks(article) {
   const regionIds = await getRegionIdsForArticle(article)
 
   const [resolvedBody, tourCompanies] = await Promise.all([
-    Promise.all(body.map(block => block.type === 'hotel_list' ? resolveHotelListBlock(regionIds, block) : block)),
-    getTourCompaniesForRegions(regionIds)
+    Promise.all(body.map(block => {
+      if (block.type === 'hotel_list') return resolveHotelListBlock(regionIds, block)
+      if (block.type === 'tour_list') return resolveTourListBlock(block)
+      return block
+    })),
+    getDestinationWideTourCompanies(article.destination_id)
   ])
   return { ...article, body: resolvedBody, tourCompanies }
 }

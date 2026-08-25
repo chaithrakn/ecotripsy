@@ -1,79 +1,116 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export default function Layout({ children, hideNav = false }) {
-  const navigate = useNavigate()
-  const [scrolled, setScrolled] = useState(false)
+function ChevronDown() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  )
+}
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+const SOCIALS = [
+  { name: 'Instagram', path: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm5.5-1a1 1 0 1 1 0-2 1 1 0 0 1 0 2z' },
+  { name: 'Facebook', path: 'M14 8h3V4h-3a5 5 0 0 0-5 5v2H6v4h3v7h4v-7h3l1-4h-4V9a1 1 0 0 1 1-1z' },
+  { name: 'Pinterest', path: 'M12 2a10 10 0 0 0-3.6 19.3c0-.8-.03-2 .2-2.85.22-.85 1.4-5.95 1.4-5.95a3.5 3.5 0 0 1-.3-1.45c0-1.35.8-2.4 1.75-2.4.85 0 1.25.6 1.25 1.35 0 .8-.5 2-.8 3.15-.25 1 .5 1.8 1.45 1.8 1.75 0 3.1-1.85 3.1-4.5 0-2.35-1.7-4-4.1-4-2.8 0-4.45 2.1-4.45 4.25 0 .85.3 1.75.75 2.25.1.1.1.2.05.35l-.3 1.15c-.05.2-.15.25-.35.15-1.3-.6-2.1-2.5-2.1-4 0-3.3 2.4-6.3 6.9-6.3 3.6 0 6.45 2.6 6.45 6.05 0 3.6-2.3 6.5-5.45 6.5-1.05 0-2.05-.55-2.4-1.2l-.65 2.5c-.25.9-.9 2.05-1.35 2.75A10 10 0 1 0 12 2z' }
+]
+
+export default function Layout({ children }) {
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#faf9f6' }}>
 
       {/* Navbar */}
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        backgroundColor: 'white',
-        borderBottom: '1px solid #f3f4f6',
-        padding: '14px 40px',
+        position: 'sticky', top: 0, zIndex: 100,
+        backgroundColor: '#faf9f6',
+        borderBottom: '1px solid #e5e4e0',
+        padding: '16px 40px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span
+          <img
+            src="/logo2.png"
+            alt="Greenlugg"
             onClick={() => navigate('/')}
-            style={{ fontWeight: 700, fontSize: '18px', color: '#111827', cursor: 'pointer' }}
-          >
-                    <img
-    src="/greenlugg-logo.png"
-    alt="Greenlugg"
-    style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
-    onClick={() => navigate('/')}
-    />
-          </span>
-          <p style={{ textAlign: 'center', fontSize: '14px', fontWeight: 700, color: '#2e3034', letterSpacing: '0.08em', margin: '6px 0 0',  }}>
-                curated sustainable travel
-         </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-            <span onClick={() => navigate('/')} style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>All</span>
-            <span onClick={() => navigate('/')} style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Destinations</span>
-            <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
-            <span style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-              </svg>
+            style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+              Destinations <ChevronDown />
             </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+              Experiences <ChevronDown />
+            </span>
+            <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Inspiration</span>
+            <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
           </div>
         </div>
       </nav>
 
       {/* Page content */}
-      <div style={{ flex: 1, marginTop: '53px' }}>
+      <div style={{ flex: 1 }}>
         {children}
       </div>
 
       {/* Footer */}
-      <footer style={{ backgroundColor: '#111827', color: 'white', padding: '48px 40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '48px' }}>
-          <div style={{ maxWidth: '400px' }}>
-            <p style={{ fontWeight: 700, fontSize: '18px', marginBottom: '12px' }}>greenlugg</p>
-            <p style={{ fontSize: '14px', color: '#9ca3af', lineHeight: 1.7 }}>
-              We curate the world's best sustainable travel experiences — eco lodges, farm stays, and conservation experiences that do more good than harm.
+      <footer style={{ backgroundColor: '#f3f2ee', color: '#111827', padding: '56px 40px 32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '48px', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '280px' }}>
+            <img src="/logo2.png" alt="Greenlugg" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
+            <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6 }}>
+              Curated sustainable travel, built around experiences.
             </p>
+            <div style={{ display: 'flex', gap: '14px', marginTop: '20px' }}>
+              {SOCIALS.map(social => (
+                <svg key={social.name} width="18" height="18" viewBox="0 0 24 24" fill="#374151" aria-label={social.name}>
+                  <path d={social.path} />
+                </svg>
+              ))}
+            </div>
           </div>
-          <div>
-            <p style={{ fontWeight: 600, fontSize: '15px', marginBottom: '16px' }}>Contact Us</p>
-            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-              <input placeholder="Your name" style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #374151', backgroundColor: '#1f2937', color: 'white', fontSize: '14px', outline: 'none', width: '280px' }} />
-              <input placeholder="Your email" style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #374151', backgroundColor: '#1f2937', color: 'white', fontSize: '14px', outline: 'none', width: '280px' }} />
-              <button style={{ padding: '10px 14px', backgroundColor: '#0F6E56', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                Submit
+
+          <div style={{ maxWidth: '320px' }}>
+            <p style={{ fontWeight: 600, fontSize: '15px', marginBottom: '6px' }}>Travel inspiration, straight to your inbox</p>
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px' }}>
+              Stories, guides and sustainable travel ideas.
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                placeholder="Your email address"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '14px', outline: 'none', width: '220px' }}
+              />
+              <button style={{ padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                Subscribe
               </button>
             </div>
           </div>
+
+          <div style={{ display: 'flex', gap: '48px' }}>
+            <div>
+              <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '14px' }}>Explore</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {['Destinations', 'Experiences', 'Inspiration', 'Plan a trip'].map(item => (
+                  <span key={item} style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '14px' }}>Company</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {['About us', 'Our approach', 'Partner with us', 'Careers'].map(item => (
+                  <span key={item} style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ maxWidth: '1200px', margin: '32px auto 0', paddingTop: '20px', borderTop: '1px solid #e5e4e0' }}>
+          <p style={{ fontSize: '12px', color: '#9ca3af' }}>© 2026 greenlugg. All rights reserved.</p>
         </div>
       </footer>
 

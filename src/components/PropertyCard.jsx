@@ -1,10 +1,4 @@
-const PILLAR_COLORS = {
-  Restore: { bg: '#E1F5EE', color: '#0F6E56' },
-  Grow:    { bg: '#EAF3DE', color: '#3B6D11' },
-  Protect: { bg: '#E6F1FB', color: '#185FA5' },
-  Connect: { bg: '#FAEEDA', color: '#854F0B' },
-  Explore: { bg: '#EEEDFE', color: '#534AB7' },
-}
+import { PILLAR_COLORS } from '../lib/pillars'
 
 export default function PropertyCard({ hotel, highlighted, onHighlight }) {
   return (
@@ -32,6 +26,11 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h3 style={{ fontWeight: 600, color: '#111827', margin: 0 }}>{hotel.name}</h3>
+            {hotel.certification && (
+              <p style={{ fontSize: '12px', color: '#0F6E56', fontWeight: 500, margin: '2px 0 0' }}>
+                {hotel.certification}
+              </p>
+            )}
           </div>
           <a
             href={hotel.url}
@@ -43,22 +42,29 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
           </a>
         </div>
         <p style={{ fontSize: '13px', color: '#4b5563', marginBottom: '8px' }}>{hotel.description}</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {hotel.pillars.map((pillar) => (
-            <span
-              key={pillar}
-              style={{
-                fontSize: '11px',
-                padding: '2px 8px',
-                borderRadius: '999px',
-                fontWeight: 500,
-                backgroundColor: PILLAR_COLORS[pillar]?.bg,
-                color: PILLAR_COLORS[pillar]?.color,
-              }}
-            >
-              {pillar}
-            </span>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {hotel.pillars.map((pillar) => (
+              <span
+                key={pillar}
+                style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  fontWeight: 500,
+                  backgroundColor: PILLAR_COLORS[pillar]?.bg,
+                  color: PILLAR_COLORS[pillar]?.color,
+                }}
+              >
+                {pillar}
+              </span>
+            ))}
+          </div>
+          {hotel.price_min != null && hotel.price_max != null && (
+            <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0, whiteSpace: 'nowrap' }}>
+              ${hotel.price_min}–${hotel.price_max}<span style={{ fontWeight: 400, color: '#6b7280' }}>/night</span>
+            </p>
+          )}
         </div>
       </div>
     </div>

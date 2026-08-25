@@ -1,5 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import L from 'leaflet'
 
 function pinSvg(color, size) {
@@ -100,6 +100,7 @@ function FitBounds({ places }) {
 export default function MapView({ places, highlightedId }) {
   const plottable = places.filter(p => p.lat != null && p.lng != null)
   const fallbackCenter = [-8.5069, 115.2625]
+  const [clickedId, setClickedId] = useState(null)
 
   return (
     <MapContainer
@@ -120,7 +121,9 @@ export default function MapView({ places, highlightedId }) {
           icon={iconFor(place, highlightedId)}
           eventHandlers={{
             mouseover: (e) => e.target.openPopup(),
-            mouseout: (e) => e.target.closePopup(),
+            mouseout: (e) => { if (clickedId !== place.id) e.target.closePopup() },
+            click: (e) => { setClickedId(place.id); e.target.openPopup() },
+            popupclose: () => setClickedId(id => (id === place.id ? null : id)),
           }}
         >
           <Popup>
@@ -144,9 +147,14 @@ export default function MapView({ places, highlightedId }) {
               {place.entryFee && (
                 <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}>Entry: {place.entryFee}</p>
               )}
-              {place.url && (
-                <a href={place.url} target="_blank" rel="noopener noreferrer" style={{ color: '#0F6E56', fontSize: '12px' }}>
-                  Visit website
+              {place.url && clickedId === place.id && (
+                <a
+                  href={place.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-block', marginTop: '4px', fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                >
+                  {place.kind === 'hotel' ? 'Book Now' : 'Visit site'}
                 </a>
               )}
             </div>

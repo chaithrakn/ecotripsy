@@ -11,7 +11,7 @@ export default function Itinerary({ data, highlightedId, onHighlight }) {
           key={index}
           style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #f3f4f6' }}
         >
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#0F6E56', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#0F2E1D', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
             Day {day.day}
           </p>
           <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 8px' }}>
@@ -101,7 +101,7 @@ export default function Itinerary({ data, highlightedId, onHighlight }) {
                     href={tour.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ color: '#0F6E56' }}
+                    style={{ color: '#0F2E1D' }}
                   >
                     {tour.name}
                   </a>

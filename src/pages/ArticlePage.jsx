@@ -7,6 +7,115 @@ import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
 import { getContentPageBySlug, getDestinations, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
 
+function TourCompanyList({ tours }) {
+  if (!tours?.length) return null
+  return (
+    <>
+      {tours.map(tour => (
+        <div key={tour.id} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ fontWeight: 600, color: '#111827', margin: 0, fontSize: '15px' }}>{tour.name}</h3>
+            <a
+              href={tour.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '16px' }}
+            >
+              Visit site
+            </a>
+          </div>
+          <p style={{ fontSize: '13px', color: '#4b5563', margin: '4px 0 0' }}>{tour.description}</p>
+        </div>
+      ))}
+    </>
+  )
+}
+
+function groupBodyIntoSections(body) {
+  const sections = []
+  let current = null
+  for (const block of body) {
+    if (block.type === 'text') {
+      current = { heading: block, blocks: [] }
+      sections.push(current)
+    } else {
+      if (!current) {
+        current = { heading: null, blocks: [] }
+        sections.push(current)
+      }
+      current.blocks.push(block)
+    }
+  }
+  return sections
+}
+
+function renderBodyBlock(block, key, { highlightedId, setHighlightedId }) {
+  if (block.type === 'text') {
+    return (
+      <div key={key} style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px', maxWidth: '680px' }}>
+        <ReactMarkdown>{block.content}</ReactMarkdown>
+      </div>
+    )
+  }
+  if (block.type === 'hotel_list') {
+    return (
+      <div key={key} style={{ marginBottom: '24px' }}>
+        {block.hotels.map(hotel => (
+          <PropertyCard
+            key={hotel.id}
+            hotel={hotel}
+            highlighted={highlightedId === hotel.id}
+            onHighlight={setHighlightedId}
+          />
+        ))}
+      </div>
+    )
+  }
+  if (block.type === 'tour_list') {
+    return (
+      <div key={key} style={{ marginBottom: '24px', maxWidth: '680px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
+          {block.title || 'Suggested Tours'}
+        </h2>
+        <TourCompanyList tours={block.tours} />
+      </div>
+    )
+  }
+  return null
+}
+
+function ChevronIcon({ expanded }) {
+  return (
+    <svg
+      width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2"
+      style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease', flexShrink: 0 }}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  )
+}
+
+function CollapsibleSection({ heading, children }) {
+  const [expanded, setExpanded] = useState(true)
+  return (
+    <div style={{ marginBottom: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', maxWidth: '680px' }}>
+        <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, flex: 1 }}>
+          <ReactMarkdown>{heading.content}</ReactMarkdown>
+        </div>
+        <button
+          onClick={() => setExpanded(e => !e)}
+          aria-label={expanded ? 'Collapse section' : 'Expand section'}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '999px', border: '1px solid #e5e7eb', backgroundColor: 'white', cursor: 'pointer', flexShrink: 0, marginTop: '2px' }}
+        >
+          <ChevronIcon expanded={expanded} />
+        </button>
+      </div>
+      {expanded && <div style={{ marginTop: '8px' }}>{children}</div>}
+    </div>
+  )
+}
+
 export default function ArticlePage() {
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -126,7 +235,7 @@ export default function ArticlePage() {
         <div onClick={() => navigate('/')} style={{ padding: '0 20px 24px', cursor: 'pointer' }}>
           <span style={{ fontWeight: 700, fontSize: '18px', color: '#111827' }}>
             <img
-              src="/greenlugg-logo.png"
+              src="/logo2.png"
               alt="Greenlugg"
               style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
               onClick={() => navigate('/')}
@@ -153,10 +262,10 @@ export default function ArticlePage() {
                 padding: '8px 20px',
                 fontSize: '14px',
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? '#0F6E56' : d.available ? '#374151' : '#9ca3af',
+                color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
                 cursor: d.available ? 'pointer' : 'default',
                 backgroundColor: isActive ? '#f0faf6' : 'transparent',
-                borderLeft: isActive ? '3px solid #0F6E56' : '3px solid transparent',
+                borderLeft: isActive ? '3px solid #0F2E1D' : '3px solid transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -191,17 +300,17 @@ export default function ArticlePage() {
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '32px' }}>
-                <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: '0 0 6px' }}>
+                <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
                   {article.title}
                 </h1>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 20px' }}>
-                  {hotels.length} curated properties{article.author ? ` · ${article.author}` : ''}
+                  {hotels.length} curated properties
                 </p>
                 <button
                   onClick={() => { setView('plan'); setItinerary(null) }}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'white', color: '#111827', border: 'none', borderRadius: '999px', padding: '10px 22px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
                 >
-                  <img src="/greenlugg-mark.png" alt="" style={{ height: '20px', width: 'auto' }} />
+                  <img src="/greenlugg-mark.png" alt="" style={{ height: '26px', width: 'auto' }} />
                   Plan trip
                 </button>
               </div>
@@ -215,53 +324,25 @@ export default function ArticlePage() {
                 </div>
               )}
 
-              {article.body.map((block, i) => {
-                if (block.type === 'text') {
-                  return (
-                    <div key={i} style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px', maxWidth: '680px' }}>
-                      <ReactMarkdown>{block.content}</ReactMarkdown>
-                    </div>
-                  )
-                }
-                if (block.type === 'hotel_list') {
-                  return (
-                    <div key={i} style={{ marginBottom: '24px' }}>
-                      {block.hotels.map(hotel => (
-                        <PropertyCard
-                          key={hotel.id}
-                          hotel={hotel}
-                          highlighted={highlightedId === hotel.id}
-                          onHighlight={setHighlightedId}
-                        />
-                      ))}
-                    </div>
-                  )
-                }
-                return null
-              })}
-
               {article.tourCompanies?.length > 0 && (
-                <div style={{ marginTop: '16px', maxWidth: '680px' }}>
+                <div style={{ marginBottom: '32px', maxWidth: '680px' }}>
                   <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
                     Suggested Tours
                   </h2>
-                  {article.tourCompanies.map(tour => (
-                    <div key={tour.id} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <h3 style={{ fontWeight: 600, color: '#111827', margin: 0, fontSize: '15px' }}>{tour.name}</h3>
-                        <a
-                          href={tour.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '16px' }}
-                        >
-                          Visit site
-                        </a>
-                      </div>
-                      <p style={{ fontSize: '13px', color: '#4b5563', margin: '4px 0 0' }}>{tour.description}</p>
-                    </div>
-                  ))}
+                  <TourCompanyList tours={article.tourCompanies} />
                 </div>
+              )}
+
+              {groupBodyIntoSections(article.body).map((section, i) =>
+                section.heading ? (
+                  <CollapsibleSection key={i} heading={section.heading}>
+                    {section.blocks.map((block, j) => renderBodyBlock(block, j, { highlightedId, setHighlightedId }))}
+                  </CollapsibleSection>
+                ) : (
+                  <div key={i}>
+                    {section.blocks.map((block, j) => renderBodyBlock(block, j, { highlightedId, setHighlightedId }))}
+                  </div>
+                )
               )}
             </div>
             <div style={{ height: '60px' }} />
