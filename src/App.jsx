@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import ArticlePage from './pages/ArticlePage'
 import PlanATripPage from './pages/PlanATripPage'
 import JournalEntryPage from './pages/JournalEntryPage'
+import JournalListPage from './pages/JournalListPage'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminHome from './pages/admin/AdminHome'
 import AdminEntityList from './components/admin/AdminEntityList'
@@ -22,6 +23,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/plan-a-trip" element={<Layout><PlanATripPage /></Layout>} />
+        <Route path="/journal" element={<Layout><JournalListPage /></Layout>} />
         <Route path="/journal/:slug" element={<Layout><JournalEntryPage /></Layout>} />
         <Route path="/articles/:slug" element={<ArticlePage />} />
 

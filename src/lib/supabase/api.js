@@ -88,7 +88,7 @@ export async function getTripTemplatesByDestination(destinationId) {
 export async function getLatestContentPages(limit = 6) {
   const { data, error } = await supabase
     .from('content_pages')
-    .select('*')
+    .select('*, destinations(name), regions(name)')
     .eq('published', true)
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -99,7 +99,7 @@ export async function getLatestContentPages(limit = 6) {
 export async function getAllContentPages() {
   const { data, error } = await supabase
     .from('content_pages')
-    .select('*')
+    .select('*, destinations(name), regions(name)')
     .eq('published', true)
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -113,6 +113,16 @@ export async function getLatestJournalEntries(limit = 4) {
     .eq('published', true)
     .order('created_at', { ascending: false })
     .limit(limit)
+  if (error) throw error
+  return data
+}
+
+export async function getAllJournalEntries() {
+  const { data, error } = await supabase
+    .from('journal_entries')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false })
   if (error) throw error
   return data
 }

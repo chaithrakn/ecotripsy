@@ -42,6 +42,10 @@ export default function ContentPageForm() {
   const [intro, setIntro] = useState('')
   const [coverImage, setCoverImage] = useState('')
   const [published, setPublished] = useState(false)
+  const [tripDays, setTripDays] = useState('')
+  const [pillars, setPillars] = useState([])
+  const [cardRegions, setCardRegions] = useState('')
+  const [cardIntro, setCardIntro] = useState('')
   const [blocks, setBlocks] = useState([])
   const [newBlockType, setNewBlockType] = useState('text')
 
@@ -78,11 +82,19 @@ export default function ContentPageForm() {
         setIntro(row.intro || '')
         setCoverImage(row.cover_image || '')
         setPublished(Boolean(row.published))
+        setTripDays(row.trip_days ?? '')
+        setPillars(row.pillars || [])
+        setCardRegions(row.card_regions || '')
+        setCardIntro(row.card_intro || '')
         setBlocks((row.body || []).map(b => ({ ...b, _id: newBlockId() })))
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
   }, [id])
+
+  function togglePillar(pillar) {
+    setPillars(current => current.includes(pillar) ? current.filter(p => p !== pillar) : [...current, pillar])
+  }
 
   function updateBlock(index, patch) {
     setBlocks(current => current.map((b, i) => (i === index ? { ...b, ...patch } : b)))
@@ -147,6 +159,10 @@ export default function ContentPageForm() {
         intro,
         cover_image: coverImage,
         published,
+        trip_days: tripDays === '' ? null : Number(tripDays),
+        pillars,
+        card_regions: cardRegions || null,
+        card_intro: cardIntro || null,
         body
       }
 
@@ -215,6 +231,55 @@ export default function ContentPageForm() {
       <div style={{ marginBottom: '18px' }}>
         <label style={fieldLabelStyle}>Cover image URL</label>
         <input value={coverImage} onChange={e => setCoverImage(e.target.value)} style={inputStyle} />
+      </div>
+
+      <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '24px 0 12px' }}>
+        Trip card (shown on the homepage and "Plan a trip" grid)
+      </p>
+
+      <div style={{ marginBottom: '18px', maxWidth: '160px' }}>
+        <label style={fieldLabelStyle}>Trip days</label>
+        <input
+          type="number"
+          min="1"
+          value={tripDays}
+          onChange={e => setTripDays(e.target.value)}
+          placeholder="e.g. 10"
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={{ marginBottom: '18px' }}>
+        <label style={fieldLabelStyle}>Card intro (describe the trip, not the destination — e.g. "Wind through terraced vineyards and coastal towns on a slow, rail-and-ferry route.")</label>
+        <textarea value={cardIntro} onChange={e => setCardIntro(e.target.value)} rows={3} style={inputStyle} />
+      </div>
+
+      <div style={{ marginBottom: '18px' }}>
+        <label style={fieldLabelStyle}>Regions shown on card (free text — keep it short, e.g. "Lisbon · Algarve · Douro · Porto", or abbreviate to "Lisbon · Algarve +2" if there are too many to fit)</label>
+        <input value={cardRegions} onChange={e => setCardRegions(e.target.value)} style={inputStyle} />
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <label style={fieldLabelStyle}>Pillars shown on card</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {PILLARS.map(p => {
+            const selected = pillars.includes(p.key)
+            return (
+              <span
+                key={p.key}
+                onClick={() => togglePillar(p.key)}
+                style={{
+                  padding: '4px 10px', borderRadius: '999px', fontSize: '12px', cursor: 'pointer',
+                  border: `1px solid ${selected ? '#0F2E1D' : '#d1d5db'}`,
+                  backgroundColor: selected ? '#0F2E1D' : 'white',
+                  color: selected ? 'white' : '#374151'
+                }}
+              >
+                {p.key}
+              </span>
+            )
+          })}
+        </div>
       </div>
 
       <div style={{ marginBottom: '24px' }}>

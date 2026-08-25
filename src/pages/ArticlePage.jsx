@@ -304,7 +304,7 @@ export default function ArticlePage() {
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? '20px' : '32px' }}>
-                <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
+                <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
                   {article.title}
                 </h1>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 20px' }}>

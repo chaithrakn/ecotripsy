@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getLatestContentPages, getLatestJournalEntries } from '../lib/supabase/api'
+import { getLatestContentPages } from '../lib/supabase/api'
 import PillarsSection from '../components/PillarsSection'
+import ArticleGrid from '../components/ArticleGrid'
+import HeroSearchBar from '../components/HeroSearchBar'
 import useIsMobile from '../hooks/useIsMobile'
 
 const STEPS = [
@@ -54,8 +56,6 @@ export default function Home() {
   const navigate = useNavigate()
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
-  const [journalEntries, setJournalEntries] = useState([])
-  const [journalLoading, setJournalLoading] = useState(true)
   const isMobile = useIsMobile()
 
   useEffect(() => {
@@ -67,27 +67,12 @@ export default function Home() {
     return () => { cancelled = true }
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
-    getLatestJournalEntries(4)
-      .then(data => { if (!cancelled) setJournalEntries(data) })
-      .catch(err => console.error('Failed to load journal entries:', err))
-      .finally(() => { if (!cancelled) setJournalLoading(false) })
-    return () => { cancelled = true }
-  }, [])
-
-  function scrollToDestinations() {
-    document.getElementById('destinations')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
     <div style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '20px 16px 48px' : '32px 40px 64px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 280px', gap: '32px', alignItems: 'start', width: '100%', maxWidth: isMobile ? '100%' : '1440px', margin: isMobile ? '0' : '0 auto' }}>
-
-        {/* MAIN COLUMN */}
-        <div>
+      <div style={{ width: '100%', maxWidth: '1280px', margin: '0 auto' }}>
 
           {/* Hero */}
+          <div style={{ position: 'relative' }}>
           <div style={{ position: 'relative', borderRadius: isMobile ? '18px' : '24px', overflow: 'hidden', height: isMobile ? 'auto' : '560px' }}>
             <img
               src="/images/header2.avif"
@@ -104,30 +89,24 @@ export default function Home() {
               maxWidth: isMobile ? 'none' : '600px',
               backgroundColor: isMobile ? '#faf9f6' : 'transparent'
             }}>
-              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '26px' : '38px', fontWeight: 500, fontOpticalSizing: 'none', color: '#111827', lineHeight: 1.15, margin: 0, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
+              <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '26px' : '38px', fontWeight: 500, color: '#111827', lineHeight: 1.15, margin: 0, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
                 Curated sustainable travel,
               </h1>
-              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '26px' : '38px', fontWeight: 500, fontOpticalSizing: 'none', color: '#111827', lineHeight: 1.15, margin: 0, fontStyle: 'italic' }}>
+              <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '24px' : '36px', fontWeight: 500, color: '#111827', lineHeight: 1.15, margin: 0, fontStyle: 'italic' }}>
                 built around experiences.
               </h1>
               <p style={{ fontSize: '15px', color: '#111827', lineHeight: 1.7, margin: '18px 0 24px', maxWidth: isMobile ? 'none' : '420px' }}>
                 Handpicked stays, meaningful experiences and local discoveries — all in one place to help you travel better.
               </p>
-              <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px' }}>
-                <button
-                  onClick={scrollToDestinations}
-                  style={{ width: isMobile ? '100%' : '190px', padding: '12px 0', backgroundColor: 'white', color: '#111827', border: '1px solid #e5e4e0', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
-                >
-                  View all destinations
-                </button>
-                <button
-                  onClick={() => navigate('/plan-a-trip')}
-                  style={{ width: isMobile ? '100%' : '190px', padding: '12px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
-                >
-                  Plan a trip
-                </button>
-              </div>
             </div>
+          </div>
+
+          <div style={isMobile
+            ? { display: 'flex', justifyContent: 'center', marginTop: '20px' }
+            : { position: 'absolute', bottom: '47px', left: '50%', transform: 'translateX(-50%)', display: 'flex', justifyContent: 'center', width: '100%' }
+          }>
+            <HeroSearchBar isMobile={isMobile} />
+          </div>
           </div>
 
           {/* Pillars */}
@@ -137,50 +116,36 @@ export default function Home() {
 
           {/* Curated destinations */}
           <div id="destinations" style={{ marginTop: '56px', scrollMarginTop: '80px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '24px' }}>
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '24px', fontWeight: 500, color: '#111827', margin: 0 }}>
-                Inspiration Guides
-              </h2>
-              <span
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: isMobile ? '22px' : '30px', color: '#111827', margin: '0 0 8px' }}>
+                  Inspiration Guides
+                </h2>
+                <p style={{ fontSize: '15px', color: '#4b5563', margin: 0 }}>
+                  Pick a guide to choose hotels, tours and build a trip.
+                </p>
+              </div>
+              <button
+                type="button"
                 onClick={() => navigate('/plan-a-trip')}
-                style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 600, color: '#111827', cursor: 'pointer' }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, whiteSpace: 'nowrap', marginTop: '4px',
+                  backgroundColor: '#faf9f6', border: '1px solid #e5e4e0', borderRadius: '999px',
+                  padding: '10px 18px', fontSize: '13px', fontWeight: 600, color: '#111827', cursor: 'pointer'
+                }}
               >
                 View all guides <ArrowRight />
-              </span>
+              </button>
             </div>
 
-            {loading ? (
-              <p style={{ color: '#6b7280', fontSize: '14px' }}>Loading...</p>
-            ) : articles.length === 0 ? (
-              <p style={{ fontSize: '13px', color: '#9ca3af' }}>No stories published yet.</p>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', marginTop: '24px' }}>
-                {articles.map(article => (
-                  <div
-                    key={article.id}
-                    onClick={() => navigate(`/articles/${article.slug}`)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '12px', aspectRatio: '4/3' }}>
-                      <img src={article.cover_image} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '17px', fontWeight: 600, color: '#111827', margin: '0 0 6px', lineHeight: 1.35 }}>
-                      {article.title}
-                    </h3>
-                    {article.excerpt && (
-                      <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6, margin: '0 0 8px' }}>
-                        {article.excerpt}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <div style={{ marginTop: '24px' }}>
+              <ArticleGrid articles={articles} loading={loading} />
+            </div>
           </div>
 
           {/* 3-step process */}
           <div style={{ marginTop: '64px', textAlign: 'center' }}>
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '22px', fontWeight: 500, color: '#111827', margin: '0 0 32px' }}>
+            <h2 style={{ fontSize: isMobile ? '22px' : '30px', color: '#111827', margin: '0 0 32px' }}>
               From discovery to your itinerary
             </h2>
             <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center', alignItems: isMobile ? 'stretch' : 'flex-start', gap: isMobile ? '28px' : '8px' }}>
@@ -206,43 +171,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-
-        </div>
-
-        {/* SIDEBAR: Field Notes */}
-        <div style={{ marginTop: isMobile ? '40px' : 0 }}>
-          <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', fontWeight: 500, color: '#111827', margin: '0 0 4px' }}>
-            Field Notes
-          </h2>
-          <p style={{ fontSize: '15px', color: '#6b7280', margin: '0 0 20px' }}>
-            Short reads and reflections from the road.
-          </p>
-
-          {journalLoading ? (
-            <p style={{ fontSize: '13px', color: '#9ca3af' }}>Loading...</p>
-          ) : journalEntries.length === 0 ? (
-            <p style={{ fontSize: '13px', color: '#9ca3af' }}>No field notes yet.</p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              {journalEntries.map(entry => (
-                <div
-                  key={entry.id}
-                  onClick={() => navigate(`/journal/${entry.slug}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div style={{ borderRadius: '10px', overflow: 'hidden', backgroundColor: '#eeece5', marginBottom: '8px', aspectRatio: '16/10' }}>
-                    {entry.cover_image && (
-                      <img src={entry.cover_image} alt={entry.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    )}
-                  </div>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#374151', margin: 0, lineHeight: 1.4 }}>
-                    {entry.title}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
       </div>
     </div>

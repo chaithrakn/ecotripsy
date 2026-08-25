@@ -43,10 +43,8 @@ export default function Layout({ children }) {
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
                 Destinations <ChevronDown />
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-                Experiences <ChevronDown />
-              </span>
               <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Inspiration</span>
+              <span onClick={() => navigate('/journal')} style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Field Notes</span>
               <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
             </div>
           )}
@@ -103,7 +101,7 @@ export default function Layout({ children }) {
             <div>
               <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '14px' }}>Explore</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['Destinations', 'Experiences', 'Inspiration', 'Plan a trip'].map(item => (
+                {['Destinations', 'Inspiration', 'Field Notes', 'Plan a trip'].map(item => (
                   <span key={item} style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
                 ))}
               </div>

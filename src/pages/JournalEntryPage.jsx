@@ -42,7 +42,7 @@ export default function JournalEntryPage() {
         </div>
       )}
 
-      <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '30px', fontWeight: 500, color: '#111827', margin: '0 0 12px' }}>
+      <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: '30px', fontWeight: 500, color: '#111827', margin: '0 0 12px' }}>
         {entry.title}
       </h1>
 
