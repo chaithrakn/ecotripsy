@@ -31,7 +31,7 @@ export default function JournalEntryPage() {
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '48px 40px 80px' }}>
       <span
         onClick={() => navigate('/')}
-        style={{ display: 'inline-block', fontSize: '13px', color: '#6b7280', cursor: 'pointer', marginBottom: '24px' }}
+        style={{ display: 'inline-block', fontSize: '15px', color: '#6b7280', cursor: 'pointer', marginBottom: '24px' }}
       >
         ← Back to home
       </span>

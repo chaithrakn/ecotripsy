@@ -6,44 +6,6 @@ import ArticleGrid from '../components/ArticleGrid'
 import HeroSearchBar from '../components/HeroSearchBar'
 import useIsMobile from '../hooks/useIsMobile'
 
-const STEPS = [
-  {
-    title: 'Discover',
-    description: 'Browse curated stays and experiences handpicked for quality, not quantity.',
-    icon: (
-      <>
-        <circle cx="7" cy="16" r="3" />
-        <circle cx="17" cy="16" r="3" />
-        <path d="M10 16h4" />
-        <path d="M9 16 8 6h2l1 6" />
-        <path d="M15 16l1-10h-2l-1 6" />
-      </>
-    )
-  },
-  {
-    title: 'Plan',
-    description: "Select what moves you and we'll build a day-by-day itinerary that flows.",
-    icon: (
-      <>
-        <path d="M9 20 3 18V6l6 2 6-2 6 2v12l-6-2-6 2z" />
-        <path d="M9 8v12" />
-        <path d="M15 6v12" />
-      </>
-    )
-  },
-  {
-    title: 'Travel',
-    description: 'Go with clarity — every stay, experience, and hidden gem already mapped out.',
-    icon: (
-      <>
-        <rect x="4" y="8" width="16" height="12" rx="2" />
-        <path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-        <path d="M4 13h16" />
-      </>
-    )
-  }
-]
-
 function ArrowRight({ color = '#111827' }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -109,17 +71,12 @@ export default function Home() {
           </div>
           </div>
 
-          {/* Pillars */}
-          <div style={{ marginTop: '56px' }}>
-            <PillarsSection />
-          </div>
-
           {/* Curated destinations */}
           <div id="destinations" style={{ marginTop: '56px', scrollMarginTop: '80px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
               <div>
                 <h2 style={{ fontSize: isMobile ? '22px' : '30px', color: '#111827', margin: '0 0 8px' }}>
-                  Inspiration Guides
+                  Curated Itineraries
                 </h2>
                 <p style={{ fontSize: '15px', color: '#4b5563', margin: 0 }}>
                   Pick a guide to choose hotels, tours and build a trip.
@@ -131,10 +88,10 @@ export default function Home() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, whiteSpace: 'nowrap', marginTop: '4px',
                   backgroundColor: '#faf9f6', border: '1px solid #e5e4e0', borderRadius: '999px',
-                  padding: '10px 18px', fontSize: '13px', fontWeight: 600, color: '#111827', cursor: 'pointer'
+                  padding: '10px 18px', fontSize: '15px', fontWeight: 600, color: '#111827', cursor: 'pointer'
                 }}
               >
-                View all guides <ArrowRight />
+                View all itineraries <ArrowRight />
               </button>
             </div>
 
@@ -143,33 +100,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 3-step process */}
-          <div style={{ marginTop: '64px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: isMobile ? '22px' : '30px', color: '#111827', margin: '0 0 32px' }}>
-              From discovery to your itinerary
-            </h2>
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center', alignItems: isMobile ? 'stretch' : 'flex-start', gap: isMobile ? '28px' : '8px' }}>
-              {STEPS.map((step, i) => (
-                <div key={step.title} style={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <div style={{ width: isMobile ? '100%' : '220px' }}>
-                    <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#f0ede4', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        {step.icon}
-                      </svg>
-                    </div>
-                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>
-                      {i + 1}. {step.title}
-                    </p>
-                    <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
-                      {step.description}
-                    </p>
-                  </div>
-                  {!isMobile && i < STEPS.length - 1 && (
-                    <div style={{ width: '48px', height: '1px', borderTop: '2px dashed #d1cfc4', marginTop: '28px' }} />
-                  )}
-                </div>
-              ))}
-            </div>
+          {/* Pillars */}
+          <div style={{ marginTop: '56px' }}>
+            <PillarsSection />
           </div>
 
       </div>

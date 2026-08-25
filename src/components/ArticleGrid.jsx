@@ -35,15 +35,9 @@ function TripCard({ article, onClick }) {
         {heading}
       </h3>
 
-      {article.card_intro && (
-        <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.6, margin: '0 0 10px' }}>
-          {article.card_intro}
-        </p>
-      )}
-
       {article.card_regions && (
         <p style={{
-          fontSize: '13px', color: '#6b7280', margin: '0 0 2px',
+          fontSize: '15px', color: '#6b7280', margin: '0 0 2px',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
         }}>
           {article.card_regions}
@@ -52,7 +46,7 @@ function TripCard({ article, onClick }) {
 
       {article.pillars?.length > 0 && (
         <p style={{
-          fontSize: '12px', fontWeight: 600, color: '#0F2E1D', margin: '0 0 10px',
+          fontSize: '15px', fontWeight: 600, color: '#0F2E1D', margin: '0 0 10px',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
         }}>
           {article.pillars.join(' · ')}
@@ -69,12 +63,12 @@ function TripCard({ article, onClick }) {
             color: 'white',
             border: 'none',
             borderRadius: '999px',
-            fontSize: '13px',
+            fontSize: '15px',
             fontWeight: 600,
             cursor: 'pointer'
           }}
         >
-          View trip →
+          Explore Itinerary →
         </button>
       </div>
     </div>
@@ -85,8 +79,8 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
 
-  if (loading) return <p style={{ color: '#6b7280', fontSize: '14px' }}>Loading...</p>
-  if (articles.length === 0) return <p style={{ fontSize: '13px', color: '#9ca3af' }}>{emptyMessage || 'No stories published yet.'}</p>
+  if (loading) return <p style={{ color: '#6b7280', fontSize: '15px' }}>Loading...</p>
+  if (articles.length === 0) return <p style={{ fontSize: '15px', color: '#9ca3af' }}>{emptyMessage || 'No stories published yet.'}</p>
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>

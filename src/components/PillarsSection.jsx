@@ -66,7 +66,7 @@ function PillarCard({ pillar, onClick }) {
       <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6, margin: '0 0 10px' }}>
         {pillar.description}
       </p>
-      <span style={{ marginTop: 'auto', paddingTop: '4px', fontSize: '13px', fontWeight: 600, color: pillar.color, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s ease' }}>
+      <span style={{ marginTop: 'auto', paddingTop: '4px', fontSize: '15px', fontWeight: 600, color: pillar.color, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s ease' }}>
         View trips →
       </span>
     </div>

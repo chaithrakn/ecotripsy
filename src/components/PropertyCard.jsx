@@ -30,7 +30,7 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
           <div>
             <h3 style={{ fontWeight: 600, color: '#111827', margin: 0 }}>{hotel.name}</h3>
             {hotel.certification && (
-              <p style={{ fontSize: '12px', color: '#0F6E56', fontWeight: 500, margin: '2px 0 0' }}>
+              <p style={{ fontSize: '15px', color: '#0F6E56', fontWeight: 500, margin: '2px 0 0' }}>
                 {hotel.certification}
               </p>
             )}
@@ -44,7 +44,7 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
             Book Now
           </a>
         </div>
-        <p style={{ fontSize: '13px', color: '#4b5563', marginBottom: '8px' }}>{hotel.description}</p>
+        <p style={{ fontSize: '15px', color: '#4b5563', marginBottom: '8px' }}>{hotel.description}</p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {hotel.pillars.map((pillar) => (
@@ -64,7 +64,7 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
             ))}
           </div>
           {hotel.price_min != null && hotel.price_max != null && (
-            <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0, whiteSpace: 'nowrap' }}>
+            <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0, whiteSpace: 'nowrap' }}>
               ${hotel.price_min}–${hotel.price_max}<span style={{ fontWeight: 400, color: '#6b7280' }}>/night</span>
             </p>
           )}

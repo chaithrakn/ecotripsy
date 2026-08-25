@@ -28,9 +28,9 @@ export default function JournalListPage() {
       </p>
 
       {loading ? (
-        <p style={{ color: '#6b7280', fontSize: '14px' }}>Loading...</p>
+        <p style={{ color: '#6b7280', fontSize: '15px' }}>Loading...</p>
       ) : entries.length === 0 ? (
-        <p style={{ fontSize: '13px', color: '#9ca3af' }}>No field notes yet.</p>
+        <p style={{ fontSize: '15px', color: '#9ca3af' }}>No field notes yet.</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
           {entries.map(entry => (
@@ -48,7 +48,7 @@ export default function JournalListPage() {
                 {entry.title}
               </h3>
               {entry.excerpt && (
-                <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
                   {entry.excerpt}
                 </p>
               )}

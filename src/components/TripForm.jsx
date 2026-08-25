@@ -84,13 +84,13 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
         <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>
           {tripTemplate.name}
         </h2>
-        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '28px' }}>
+        <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '28px' }}>
           {tripTemplate.body.length} days · pick a hotel for each leg of the trip.
         </p>
 
         {tripTemplate.legs.map(leg => (
           <div key={leg.region_id} style={{ marginBottom: '28px' }}>
-            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
+            <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
               {leg.label}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -116,7 +116,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
                     onChange={() => setSelectedLegHotels(s => ({ ...s, [leg.region_id]: hotel.id }))}
                     style={{ accentColor: '#0F2E1D' }}
                   />
-                  <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
+                  <p style={{ margin: 0, fontWeight: 500, fontSize: '15px', color: '#111827' }}>
                     {hotel.name}
                   </p>
                 </label>
@@ -144,7 +144,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
         </button>
 
         {error && (
-          <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>{error}</p>
+          <p style={{ color: '#ef4444', fontSize: '15px', marginTop: '12px' }}>{error}</p>
         )}
       </div>
     )
@@ -168,7 +168,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
       {/* Region filter (optional) */}
       {hasMultipleRegions && (
         <div style={{ marginBottom: '24px' }}>
-          <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
+          <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
             What regions will you travel to? <span style={{ fontWeight: 400, color: '#9ca3af' }}>(optional)</span>
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -197,7 +197,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
 
       {/* Hotel selection */}
       <div style={{ marginBottom: '32px' }}>
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
+        <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
           Where will you stay?
         </p>
         {(combineMode
@@ -206,7 +206,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
         ).map(([regionKey, regionHotels]) => (
           <div key={regionKey} style={{ marginBottom: '20px' }}>
             {(combineMode || showRegionHeadings) && (
-              <p style={{ fontSize: '13px', fontWeight: 600, color: '#6b7280', marginBottom: '10px' }}>
+              <p style={{ fontSize: '15px', fontWeight: 600, color: '#6b7280', marginBottom: '10px' }}>
                 {regionHotels[0].regions?.name || regionKey}
               </p>
             )}
@@ -241,7 +241,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
                       }
                       style={{ accentColor: '#0F2E1D' }}
                     />
-                    <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
+                    <p style={{ margin: 0, fontWeight: 500, fontSize: '15px', color: '#111827' }}>
                       {hotel.name}
                     </p>
                   </label>
@@ -272,7 +272,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
       </button>
 
       {error && (
-        <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>{error}</p>
+        <p style={{ color: '#ef4444', fontSize: '15px', marginTop: '12px' }}>{error}</p>
       )}
     </div>
   )

@@ -28,7 +28,7 @@ function DayCard({ day, highlightedId, onHighlight }) {
         {day.title}
       </h3>
       {day.arrivalNote && (
-        <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px' }}>
+        <p style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px' }}>
           {day.arrivalNote}
         </p>
       )}
@@ -41,7 +41,7 @@ function DayCard({ day, highlightedId, onHighlight }) {
               onMouseLeave={() => onHighlight?.(null)}
               onClick={() => onHighlight?.(activity.id)}
               style={{
-                fontSize: '14px',
+                fontSize: '15px',
                 color: '#4b5563',
                 lineHeight: 1.7,
                 marginBottom: '4px',
@@ -70,7 +70,7 @@ function DayCard({ day, highlightedId, onHighlight }) {
                 onMouseLeave={() => onHighlight?.(null)}
                 onClick={() => onHighlight?.(activity.id)}
                 style={{
-                  fontSize: '14px',
+                  fontSize: '15px',
                   color: '#6b7280',
                   lineHeight: 1.7,
                   marginBottom: '4px',
@@ -88,22 +88,22 @@ function DayCard({ day, highlightedId, onHighlight }) {
         </div>
       )}
       {day.note && (
-        <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px', fontStyle: 'italic' }}>
+        <p style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px', fontStyle: 'italic' }}>
           {day.note}
         </p>
       )}
       {day.checkinNote && (
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', lineHeight: 1.7, margin: '0 0 8px' }}>
+        <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', lineHeight: 1.7, margin: '0 0 8px' }}>
           {day.checkinNote}
         </p>
       )}
       {day.departNote && (
-        <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px' }}>
+        <p style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px' }}>
           {day.departNote}
         </p>
       )}
       {day.tourSuggestions.length > 0 && (
-        <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 8px' }}>
+        <p style={{ fontSize: '15px', color: '#6b7280', margin: '0 0 8px' }}>
           🧭 Suggested tours:{' '}
           {day.tourSuggestions.map((tour, i) => (
             <span key={tour.id}>
@@ -142,11 +142,11 @@ function DayCard({ day, highlightedId, onHighlight }) {
           />
         )}
         <div style={{ flex: 1 }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0 }}>
+          <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0 }}>
             🏨 {day.hotel.name}
           </p>
           {day.hotel.description && (
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0 0' }}>
+            <p style={{ fontSize: '15px', color: '#6b7280', margin: '2px 0 0' }}>
               {day.hotel.description}
             </p>
           )}
@@ -182,7 +182,7 @@ export default function Itinerary({ data, highlightedId, onHighlight }) {
       </h2>
 
       {hasMultipleRegions && (
-        <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px' }}>
+        <p style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px' }}>
           Your {totalDays}-day itinerary:{' '}
           {groups.map((group, i) => (
             <span key={i}>
@@ -215,7 +215,7 @@ export default function Itinerary({ data, highlightedId, onHighlight }) {
             heading={
               <p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>
                 {group.regionName}{' '}
-                <span style={{ fontWeight: 400, color: '#6b7280', fontSize: '13px' }}>
+                <span style={{ fontWeight: 400, color: '#6b7280', fontSize: '15px' }}>
                   · {group.days.length} day{group.days.length > 1 ? 's' : ''}
                 </span>
               </p>

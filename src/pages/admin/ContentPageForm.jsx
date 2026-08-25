@@ -45,7 +45,6 @@ export default function ContentPageForm() {
   const [tripDays, setTripDays] = useState('')
   const [pillars, setPillars] = useState([])
   const [cardRegions, setCardRegions] = useState('')
-  const [cardIntro, setCardIntro] = useState('')
   const [blocks, setBlocks] = useState([])
   const [newBlockType, setNewBlockType] = useState('text')
 
@@ -85,7 +84,6 @@ export default function ContentPageForm() {
         setTripDays(row.trip_days ?? '')
         setPillars(row.pillars || [])
         setCardRegions(row.card_regions || '')
-        setCardIntro(row.card_intro || '')
         setBlocks((row.body || []).map(b => ({ ...b, _id: newBlockId() })))
       })
       .catch(err => setError(err.message))
@@ -162,7 +160,6 @@ export default function ContentPageForm() {
         trip_days: tripDays === '' ? null : Number(tripDays),
         pillars,
         card_regions: cardRegions || null,
-        card_intro: cardIntro || null,
         body
       }
 
@@ -247,11 +244,6 @@ export default function ContentPageForm() {
           placeholder="e.g. 10"
           style={inputStyle}
         />
-      </div>
-
-      <div style={{ marginBottom: '18px' }}>
-        <label style={fieldLabelStyle}>Card intro (describe the trip, not the destination — e.g. "Wind through terraced vineyards and coastal towns on a slow, rail-and-ferry route.")</label>
-        <textarea value={cardIntro} onChange={e => setCardIntro(e.target.value)} rows={3} style={inputStyle} />
       </div>
 
       <div style={{ marginBottom: '18px' }}>

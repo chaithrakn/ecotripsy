@@ -26,7 +26,7 @@ function TourCompanyList({ tours }) {
               Visit site
             </a>
           </div>
-          <p style={{ fontSize: '13px', color: '#4b5563', margin: '4px 0 0' }}>{tour.description}</p>
+          <p style={{ fontSize: '15px', color: '#4b5563', margin: '4px 0 0' }}>{tour.description}</p>
         </div>
       ))}
     </>
@@ -54,7 +54,7 @@ function groupBodyIntoSections(body) {
 function renderBodyBlock(block, key, { highlightedId, setHighlightedId }) {
   if (block.type === 'text') {
     return (
-      <div key={key} style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px', maxWidth: '680px' }}>
+      <div key={key} style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px', maxWidth: '680px' }}>
         <ReactMarkdown>{block.content}</ReactMarkdown>
       </div>
     )
@@ -220,7 +220,7 @@ export default function ArticlePage() {
           />
           <button
             onClick={() => navigate('/')}
-            style={{ background: 'none', border: '1px solid #e5e4e0', borderRadius: '999px', padding: '6px 14px', fontSize: '13px', color: '#374151', cursor: 'pointer' }}
+            style={{ background: 'none', border: '1px solid #e5e4e0', borderRadius: '999px', padding: '6px 14px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}
           >
             ← All destinations
           </button>
@@ -263,7 +263,7 @@ export default function ArticlePage() {
                 onClick={() => d.available && navigate('/')}
                 style={{
                   padding: '8px 20px',
-                  fontSize: '14px',
+                  fontSize: '15px',
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
                   cursor: d.available ? 'pointer' : 'default',
@@ -283,8 +283,8 @@ export default function ArticlePage() {
           })}
 
           <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid #f3f4f6' }}>
-            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
-            <p style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
+            <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
+            <p style={{ fontSize: '15px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
           </div>
         </div>
       )}
@@ -307,12 +307,12 @@ export default function ArticlePage() {
                 <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
                   {article.title}
                 </h1>
-                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 20px' }}>
+                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', margin: '0 0 20px' }}>
                   {hotels.length} curated properties
                 </p>
                 <button
                   onClick={() => { setView('plan'); setItinerary(null) }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'white', color: '#111827', border: 'none', borderRadius: '999px', padding: '10px 22px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'white', color: '#111827', border: 'none', borderRadius: '999px', padding: '10px 22px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   <img src="/greenlugg-mark.png" alt="" style={{ height: '26px', width: 'auto' }} />
                   Plan trip
@@ -323,7 +323,7 @@ export default function ArticlePage() {
             {/* Content */}
             <div style={{ padding: isMobile ? '24px 16px' : '32px 48px' }}>
               {article.intro && (
-                <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, marginBottom: '32px', maxWidth: '680px' }}>
+                <div style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '32px', maxWidth: '680px' }}>
                   <ReactMarkdown>{article.intro}</ReactMarkdown>
                 </div>
               )}
@@ -342,7 +342,7 @@ export default function ArticlePage() {
                   <CollapsibleSection
                     key={i}
                     heading={
-                      <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, maxWidth: '680px' }}>
+                      <div style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, maxWidth: '680px' }}>
                         <ReactMarkdown>{section.heading.content}</ReactMarkdown>
                       </div>
                     }
@@ -364,7 +364,7 @@ export default function ArticlePage() {
           <div ref={planScrollRef} style={{ flex: 1, overflowY: isMobile ? 'visible' : 'auto', padding: isMobile ? '20px 16px' : '32px 48px' }}>
             <button
               onClick={() => { setView('list'); setItinerary(null) }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#6b7280', marginBottom: '24px', padding: 0 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px', color: '#6b7280', marginBottom: '24px', padding: 0 }}
             >
               ← Back to list
             </button>
@@ -378,7 +378,7 @@ export default function ArticlePage() {
               <>
                 <button
                   onClick={() => setItinerary(null)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#6b7280', marginBottom: '24px', padding: 0 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px', color: '#6b7280', marginBottom: '24px', padding: 0 }}
                 >
                   ← Back to form
                 </button>

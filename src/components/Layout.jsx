@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getAllContentPages } from '../lib/supabase/api'
 import useIsMobile from '../hooks/useIsMobile'
 
 function ChevronDown() {
@@ -7,6 +8,76 @@ function ChevronDown() {
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <path d="m6 9 6 6 6-6" />
     </svg>
+  )
+}
+
+function placeName(article) {
+  return article.destinations?.name ?? article.regions?.name ?? article.title
+}
+
+function PlacesDropdown() {
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const [articles, setArticles] = useState([])
+  const [highlightIndex, setHighlightIndex] = useState(-1)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    let cancelled = false
+    getAllContentPages()
+      .then(data => { if (!cancelled) setArticles(data) })
+      .catch(err => console.error('Failed to load places:', err))
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function go(slug) {
+    setOpen(false)
+    navigate(`/articles/${slug}`)
+  }
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <span
+        onClick={() => setOpen(o => !o)}
+        style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}
+      >
+        Places <ChevronDown />
+      </span>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 16px)', left: '50%', transform: 'translateX(-50%)',
+          backgroundColor: 'white', borderRadius: '14px', boxShadow: '0 12px 32px rgba(0,0,0,0.16)',
+          padding: '8px', minWidth: '220px', maxHeight: '320px', overflowY: 'auto', zIndex: 50
+        }}>
+          {articles.length === 0 ? (
+            <div style={{ padding: '10px 14px', fontSize: '14px', color: '#9ca3af' }}>Loading...</div>
+          ) : (
+            articles.map((article, index) => (
+              <div
+                key={article.id}
+                onClick={() => go(article.slug)}
+                onMouseEnter={() => setHighlightIndex(index)}
+                style={{
+                  padding: '10px 14px', borderRadius: '8px', fontSize: '15px', color: '#111827', cursor: 'pointer',
+                  backgroundColor: highlightIndex === index ? '#f0faf6' : 'transparent'
+                }}
+              >
+                {placeName(article)}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -40,12 +111,9 @@ export default function Layout({ children }) {
           />
           {!isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '32px', justifySelf: 'center' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-                Destinations <ChevronDown />
-              </span>
-              <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Inspiration</span>
-              <span onClick={() => navigate('/journal')} style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Field Notes</span>
-              <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
+              <PlacesDropdown />
+              <span onClick={() => navigate('/journal')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Field Notes</span>
+              <span style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>About</span>
             </div>
           )}
           <button
@@ -67,7 +135,7 @@ export default function Layout({ children }) {
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: isMobile ? '32px' : '48px', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ maxWidth: isMobile ? 'none' : '340px' }}>
             <img src="/logo2.png" alt="Greenlugg" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
-            <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6 }}>
               At Greenlugg, we are passionate about preserving the environments and communities we travel through. We are building the ecosystem to curate the world's best sustainable and regenerative hotels and experiences, to make your travel more meaningful.
             </p>
             <div style={{ display: 'flex', gap: '14px', marginTop: '20px' }}>
@@ -81,7 +149,7 @@ export default function Layout({ children }) {
 
           <div style={{ maxWidth: isMobile ? 'none' : '320px' }}>
             <p style={{ fontWeight: 600, fontSize: '15px', marginBottom: '6px' }}>Travel inspiration, straight to your inbox</p>
-            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px' }}>
+            <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '14px' }}>
               Stories, guides and sustainable travel ideas.
             </p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -89,9 +157,9 @@ export default function Layout({ children }) {
                 placeholder="Your email address"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '14px', outline: 'none', width: isMobile ? '100%' : '220px', boxSizing: 'border-box' }}
+                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '15px', outline: 'none', width: isMobile ? '100%' : '220px', boxSizing: 'border-box' }}
               />
-              <button style={{ padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button style={{ padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Subscribe
               </button>
             </div>
@@ -99,18 +167,18 @@ export default function Layout({ children }) {
 
           <div style={{ display: 'flex', gap: '48px' }}>
             <div>
-              <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '14px' }}>Explore</p>
+              <p style={{ fontWeight: 600, fontSize: '15px', marginBottom: '14px' }}>Explore</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['Destinations', 'Inspiration', 'Field Notes', 'Plan a trip'].map(item => (
-                  <span key={item} style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
+                {['Places', 'Field Notes', 'Plan a trip'].map(item => (
+                  <span key={item} style={{ fontSize: '15px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
                 ))}
               </div>
             </div>
             <div>
-              <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '14px' }}>Company</p>
+              <p style={{ fontWeight: 600, fontSize: '15px', marginBottom: '14px' }}>Company</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {['About us', 'Our approach', 'Partner with us', 'Careers'].map(item => (
-                  <span key={item} style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
+                  <span key={item} style={{ fontSize: '15px', color: '#6b7280', cursor: 'pointer' }}>{item}</span>
                 ))}
               </div>
             </div>

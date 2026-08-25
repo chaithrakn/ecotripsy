@@ -106,7 +106,7 @@ export default function HeroSearchBar({ isMobile }) {
             style={{
               display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0,
               backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '10px',
-              padding: '10px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+              padding: '10px 18px', fontSize: '15px', fontWeight: 600, cursor: 'pointer'
             }}
           >
             <SearchIcon /> Search
@@ -116,7 +116,7 @@ export default function HeroSearchBar({ isMobile }) {
         {!query.trim() && popular.length > 0 && (
           <>
             <div style={{ height: '1px', backgroundColor: '#e5e4e0', margin: '12px 0 10px' }} />
-            <p style={{ fontSize: '12px', color: '#374151', margin: 0 }}>
+            <p style={{ fontSize: '15px', color: '#374151', margin: 0 }}>
               Popular:{' '}
               {popular.map((option, i) => (
                 <span key={option.value}>
@@ -148,7 +148,7 @@ export default function HeroSearchBar({ isMobile }) {
               onClick={() => select(option)}
               onMouseEnter={() => setHighlightIndex(index)}
               style={{
-                padding: '10px 10px', borderRadius: '8px', fontSize: '14px', color: '#111827', cursor: 'pointer',
+                padding: '10px 10px', borderRadius: '8px', fontSize: '15px', color: '#111827', cursor: 'pointer',
                 backgroundColor: highlightIndex === index ? '#f0faf6' : 'transparent'
               }}
             >
