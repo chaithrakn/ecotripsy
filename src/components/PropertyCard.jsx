@@ -1,6 +1,8 @@
 import { PILLAR_COLORS } from '../lib/pillars'
+import useIsMobile from '../hooks/useIsMobile'
 
 export default function PropertyCard({ hotel, highlighted, onHighlight }) {
+  const isMobile = useIsMobile()
   return (
     <div
       onMouseEnter={() => onHighlight?.(hotel.id)}
@@ -8,9 +10,10 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
       onClick={() => onHighlight?.(hotel.id)}
       style={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         gap: '16px',
-        padding: '24px',
-        margin: '0 -24px',
+        padding: isMobile ? '16px' : '24px',
+        margin: isMobile ? '0 -16px' : '0 -24px',
         borderRadius: '10px',
         borderBottom: '1px solid #f3f4f6',
         backgroundColor: highlighted ? '#f0faf6' : 'transparent',
@@ -20,7 +23,7 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
       <img
         src={hotel.image}
         alt={hotel.name}
-        style={{ width: '200px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, alignSelf: 'stretch' }}
+        style={{ width: isMobile ? '100%' : '200px', height: isMobile ? '160px' : 'auto', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, alignSelf: isMobile ? 'auto' : 'stretch' }}
       />
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

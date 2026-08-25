@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useIsMobile from '../hooks/useIsMobile'
 
 function ChevronDown() {
   return (
@@ -18,6 +19,7 @@ const SOCIALS = [
 export default function Layout({ children }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const isMobile = useIsMobile()
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#faf9f6' }}>
@@ -27,28 +29,30 @@ export default function Layout({ children }) {
         position: 'sticky', top: 0, zIndex: 100,
         backgroundColor: '#faf9f6',
         borderBottom: '1px solid #e5e4e0',
-        padding: '16px 40px',
+        padding: isMobile ? '14px 20px' : '16px 40px',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'auto auto' : '1fr auto 1fr', alignItems: 'center', justifyContent: isMobile ? 'space-between' : 'stretch' }}>
           <img
             src="/logo2.png"
             alt="Greenlugg"
             onClick={() => navigate('/')}
-            style={{ height: '40px', width: 'auto', cursor: 'pointer', justifySelf: 'start' }}
+            style={{ height: isMobile ? '32px' : '40px', width: 'auto', cursor: 'pointer', justifySelf: 'start' }}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px', justifySelf: 'center' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-              Destinations <ChevronDown />
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-              Experiences <ChevronDown />
-            </span>
-            <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Inspiration</span>
-            <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
-          </div>
+          {!isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '32px', justifySelf: 'center' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+                Destinations <ChevronDown />
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+                Experiences <ChevronDown />
+              </span>
+              <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Inspiration</span>
+              <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
+            </div>
+          )}
           <button
             onClick={() => navigate('/plan-a-trip')}
-            style={{ width: '190px', padding: '10px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '999px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', justifySelf: 'end' }}
+            style={{ width: isMobile ? 'auto' : '190px', padding: isMobile ? '9px 16px' : '10px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '999px', fontSize: isMobile ? '13px' : '14px', fontWeight: 600, cursor: 'pointer', justifySelf: 'end', whiteSpace: 'nowrap' }}
           >
             Plan a trip
           </button>
@@ -61,9 +65,9 @@ export default function Layout({ children }) {
       </div>
 
       {/* Footer */}
-      <footer style={{ backgroundColor: '#f3f2ee', color: '#111827', padding: '56px 40px 32px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '48px', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ maxWidth: '340px' }}>
+      <footer style={{ backgroundColor: '#f3f2ee', color: '#111827', padding: isMobile ? '40px 20px 24px' : '56px 40px 32px' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: isMobile ? '32px' : '48px', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ maxWidth: isMobile ? 'none' : '340px' }}>
             <img src="/logo2.png" alt="Greenlugg" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
             <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6 }}>
               At Greenlugg, we are passionate about preserving the environments and communities we travel through. We are building the ecosystem to curate the world's best sustainable and regenerative hotels and experiences, to make your travel more meaningful.
@@ -77,17 +81,17 @@ export default function Layout({ children }) {
             </div>
           </div>
 
-          <div style={{ maxWidth: '320px' }}>
+          <div style={{ maxWidth: isMobile ? 'none' : '320px' }}>
             <p style={{ fontWeight: 600, fontSize: '15px', marginBottom: '6px' }}>Travel inspiration, straight to your inbox</p>
             <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px' }}>
               Stories, guides and sustainable travel ideas.
             </p>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <input
                 placeholder="Your email address"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '14px', outline: 'none', width: '220px' }}
+                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '14px', outline: 'none', width: isMobile ? '100%' : '220px', boxSizing: 'border-box' }}
               />
               <button style={{ padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Subscribe

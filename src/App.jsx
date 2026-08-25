@@ -8,6 +8,10 @@ import AdminLayout from './pages/admin/AdminLayout'
 import AdminHome from './pages/admin/AdminHome'
 import AdminEntityList from './components/admin/AdminEntityList'
 import AdminEntityForm from './components/admin/AdminEntityForm'
+import ItineraryTemplateList from './pages/admin/ItineraryTemplateList'
+import ItineraryTemplateForm from './pages/admin/ItineraryTemplateForm'
+import ContentPageList from './pages/admin/ContentPageList'
+import ContentPageForm from './pages/admin/ContentPageForm'
 import { ENTITIES } from './lib/admin/entityConfigs'
 
 function App() {
@@ -30,6 +34,12 @@ function App() {
           {ENTITIES.map(entity => (
             <Route key={`${entity.table}-edit`} path={`${entity.table}/:id`} element={<AdminEntityForm config={entity} />} />
           ))}
+          <Route path="itinerary_templates" element={<ItineraryTemplateList />} />
+          <Route path="itinerary_templates/new" element={<ItineraryTemplateForm />} />
+          <Route path="itinerary_templates/:id" element={<ItineraryTemplateForm />} />
+          <Route path="content_pages" element={<ContentPageList />} />
+          <Route path="content_pages/new" element={<ContentPageForm />} />
+          <Route path="content_pages/:id" element={<ContentPageForm />} />
         </Route>
       </Routes>
     </BrowserRouter>

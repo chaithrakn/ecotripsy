@@ -17,6 +17,18 @@ export default function AdminLayout() {
             {entity.label}
           </Link>
         ))}
+        <Link
+          to="/admin/itinerary_templates"
+          style={{ display: 'block', padding: '8px 0', fontSize: '14px', color: '#374151', textDecoration: 'none' }}
+        >
+          Itinerary Templates
+        </Link>
+        <Link
+          to="/admin/content_pages"
+          style={{ display: 'block', padding: '8px 0', fontSize: '14px', color: '#374151', textDecoration: 'none' }}
+        >
+          Articles
+        </Link>
         <Link to="/" style={{ display: 'block', marginTop: '24px', fontSize: '13px', color: '#9ca3af', textDecoration: 'none' }}>
           ← Back to site
         </Link>

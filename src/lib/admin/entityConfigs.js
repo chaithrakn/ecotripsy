@@ -73,4 +73,22 @@ export const HOTEL_CONFIG = {
   ]
 }
 
-export const ENTITIES = [DESTINATION_CONFIG, REGION_CONFIG, HOTEL_CONFIG]
+export const TOUR_COMPANY_CONFIG = {
+  table: 'tour_companies',
+  label: 'Tour Companies',
+  fields: [
+    { name: 'name', type: 'text', required: true },
+    { name: 'slug', type: 'text', required: true },
+    { name: 'description', type: 'textarea' },
+    { name: 'url', type: 'text', label: 'Website URL' },
+    { name: 'image', type: 'text', label: 'Image path/URL' },
+    { name: 'region_id', type: 'select', label: 'Region (for a region-specific company)', loadOptions: loadRegionOptions },
+    { name: 'destination_id', type: 'select', label: 'Destination (only if no Region — for a destination-wide company)', loadOptions: loadDestinationOptions },
+    { name: 'pillars', type: 'multiselect', options: PILLARS.map(p => p.key) },
+    { name: 'interests', type: 'multiselect', options: INTERESTS },
+    { name: 'lat', type: 'number', step: 'any' },
+    { name: 'lng', type: 'number', step: 'any' }
+  ]
+}
+
+export const ENTITIES = [DESTINATION_CONFIG, REGION_CONFIG, HOTEL_CONFIG, TOUR_COMPANY_CONFIG]

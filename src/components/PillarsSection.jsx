@@ -1,4 +1,5 @@
 import { PILLARS } from '../lib/pillars'
+import useIsMobile from '../hooks/useIsMobile'
 
 const PILLAR_ICONS = {
   Grow: (
@@ -31,12 +32,13 @@ const PILLAR_ICONS = {
 }
 
 export default function PillarsSection() {
+  const isMobile = useIsMobile()
   return (
     <div>
-      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '24px', fontWeight: 500, color: '#111827', margin: '0 0 28px' }}>
+      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '20px' : '24px', fontWeight: 500, color: '#111827', margin: '0 0 28px' }}>
         Travel by what moves you
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)', gap: isMobile ? '24px 16px' : '20px' }}>
         {PILLARS.map(pillar => (
           <div key={pillar.key}>
             <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: pillar.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>

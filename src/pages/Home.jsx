@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getLatestContentPages } from '../lib/supabase/api'
 import PillarsSection from '../components/PillarsSection'
+import useIsMobile from '../hooks/useIsMobile'
 
 const STEPS = [
   {
@@ -59,6 +60,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     let cancelled = false
@@ -74,41 +76,48 @@ export default function Home() {
   }
 
   return (
-    <div style={{ width: '100%', boxSizing: 'border-box', padding: '32px 40px 64px 70px', display: 'flex', justifyContent: 'flex-end' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1100px 280px', gap: '32px', alignItems: 'start' }}>
+    <div style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '20px 16px 48px' : '32px 40px 64px 70px', display: 'flex', justifyContent: isMobile ? 'stretch' : 'flex-end' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1100px 280px', gap: '32px', alignItems: 'start', width: '100%', maxWidth: isMobile ? '100%' : 'none' }}>
 
         {/* MAIN COLUMN */}
         <div>
 
           {/* Hero */}
-          <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', height: '560px' }}>
+          <div style={{ position: 'relative', borderRadius: isMobile ? '18px' : '24px', overflow: 'hidden', height: isMobile ? 'auto' : '560px' }}>
             <img
               src="/images/header2.avif"
               alt=""
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ position: isMobile ? 'static' : 'absolute', inset: 0, width: '100%', height: isMobile ? '260px' : '100%', objectFit: 'cover' }}
             />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(115deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 45%, rgba(0,0,0,0.05) 100%)' }} />
+            {!isMobile && (
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(115deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 45%, rgba(0,0,0,0.05) 100%)' }} />
+            )}
 
-            <div style={{ position: 'relative', padding: '56px 48px 0', maxWidth: '600px' }}>
-              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '38px', fontWeight: 500, fontOpticalSizing: 'none', color: '#111827', lineHeight: 1.15, margin: 0, whiteSpace: 'nowrap' }}>
+            <div style={{
+              position: isMobile ? 'static' : 'relative',
+              padding: isMobile ? '20px 4px 0' : '56px 48px 0',
+              maxWidth: isMobile ? 'none' : '600px',
+              backgroundColor: isMobile ? '#faf9f6' : 'transparent'
+            }}>
+              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '26px' : '38px', fontWeight: 500, fontOpticalSizing: 'none', color: '#111827', lineHeight: 1.15, margin: 0, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
                 Curated sustainable travel,
               </h1>
-              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '38px', fontWeight: 500, fontOpticalSizing: 'none', color: '#111827', lineHeight: 1.15, margin: 0, fontStyle: 'italic' }}>
+              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '26px' : '38px', fontWeight: 500, fontOpticalSizing: 'none', color: '#111827', lineHeight: 1.15, margin: 0, fontStyle: 'italic' }}>
                 built around experiences.
               </h1>
-              <p style={{ fontSize: '15px', color: '#111827', lineHeight: 1.7, margin: '18px 0 24px', maxWidth: '420px' }}>
+              <p style={{ fontSize: '15px', color: '#111827', lineHeight: 1.7, margin: '18px 0 24px', maxWidth: isMobile ? 'none' : '420px' }}>
                 Handpicked stays, meaningful experiences and local discoveries — all in one place to help you travel better.
               </p>
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px' }}>
                 <button
                   onClick={scrollToDestinations}
-                  style={{ width: '190px', padding: '12px 0', backgroundColor: 'white', color: '#111827', border: '1px solid #e5e4e0', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ width: isMobile ? '100%' : '190px', padding: '12px 0', backgroundColor: 'white', color: '#111827', border: '1px solid #e5e4e0', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   View all destinations
                 </button>
                 <button
                   onClick={() => navigate('/plan-a-trip')}
-                  style={{ width: '190px', padding: '12px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ width: isMobile ? '100%' : '190px', padding: '12px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   Plan a trip
                 </button>
@@ -169,10 +178,10 @@ export default function Home() {
             <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '22px', fontWeight: 500, color: '#111827', margin: '0 0 32px' }}>
               From discovery to your itinerary
             </h2>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'center', alignItems: isMobile ? 'stretch' : 'flex-start', gap: isMobile ? '28px' : '8px' }}>
               {STEPS.map((step, i) => (
                 <div key={step.title} style={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <div style={{ width: '220px' }}>
+                  <div style={{ width: isMobile ? '100%' : '220px' }}>
                     <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#f0ede4', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                         {step.icon}
@@ -185,7 +194,7 @@ export default function Home() {
                       {step.description}
                     </p>
                   </div>
-                  {i < STEPS.length - 1 && (
+                  {!isMobile && i < STEPS.length - 1 && (
                     <div style={{ width: '48px', height: '1px', borderTop: '2px dashed #d1cfc4', marginTop: '28px' }} />
                   )}
                 </div>
@@ -196,7 +205,7 @@ export default function Home() {
         </div>
 
         {/* SIDEBAR: Travel stories (dummy placeholder for now) */}
-        <div>
+        <div style={{ marginTop: isMobile ? '40px' : 0 }}>
           <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', fontWeight: 500, color: '#111827', margin: '0 0 4px' }}>
             Travel stories
           </h2>

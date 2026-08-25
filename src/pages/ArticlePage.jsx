@@ -7,6 +7,7 @@ import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
 import CollapsibleSection from '../components/CollapsibleSection'
 import { getContentPageBySlug, getDestinations, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
+import useIsMobile from '../hooks/useIsMobile'
 
 function TourCompanyList({ tours }) {
   if (!tours?.length) return null
@@ -97,6 +98,7 @@ export default function ArticlePage() {
   const [attractions, setAttractions] = useState([])
   const [tripTemplate, setTripTemplate] = useState(null)
   const planScrollRef = useRef(null)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     if (itinerary) planScrollRef.current?.scrollTo({ top: 0 })
@@ -189,92 +191,120 @@ export default function ArticlePage() {
   return (
     <div style={{
       display: 'flex',
-      height: '100vh',
-      overflow: 'hidden',
-      fontFamily: 'Inter, sans-serif', width: '100vw', position: 'fixed',
+      flexDirection: isMobile ? 'column' : 'row',
+      height: isMobile ? 'auto' : '100vh',
+      minHeight: isMobile ? '100vh' : undefined,
+      overflow: isMobile ? 'visible' : 'hidden',
+      fontFamily: 'Inter, sans-serif',
+      width: isMobile ? '100%' : '100vw',
+      position: isMobile ? 'static' : 'fixed',
       top: 0,
       left: 0,
     }}>
 
       {/* SIDEBAR */}
-      <div style={{
-        width: '200px',
-        flexShrink: 0,
-        backgroundColor: 'white',
-        borderRight: '1px solid #f3f4f6',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '24px 0',
-      }}>
-        <div onClick={() => navigate('/')} style={{ padding: '0 20px 24px', cursor: 'pointer' }}>
-          <span style={{ fontWeight: 700, fontSize: '18px', color: '#111827' }}>
-            <img
-              src="/logo2.png"
-              alt="Greenlugg"
-              style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
-              onClick={() => navigate('/')}
-            />
-          </span>
-          <p style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', margin: '2px 0 0', letterSpacing: '0.03em' }}>
-            curated sustainable travel
+      {isMobile ? (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: 'white',
+          borderBottom: '1px solid #f3f4f6',
+          padding: '14px 16px',
+        }}>
+          <img
+            src="/logo2.png"
+            alt="Greenlugg"
+            style={{ height: '30px', width: 'auto', cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          />
+          <button
+            onClick={() => navigate('/')}
+            style={{ background: 'none', border: '1px solid #e5e4e0', borderRadius: '999px', padding: '6px 14px', fontSize: '13px', color: '#374151', cursor: 'pointer' }}
+          >
+            ← All destinations
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          width: '200px',
+          flexShrink: 0,
+          backgroundColor: 'white',
+          borderRight: '1px solid #f3f4f6',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '24px 0',
+        }}>
+          <div onClick={() => navigate('/')} style={{ padding: '0 20px 24px', cursor: 'pointer' }}>
+            <span style={{ fontWeight: 700, fontSize: '18px', color: '#111827' }}>
+              <img
+                src="/logo2.png"
+                alt="Greenlugg"
+                style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
+                onClick={() => navigate('/')}
+              />
+            </span>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', margin: '2px 0 0', letterSpacing: '0.03em' }}>
+              curated sustainable travel
+            </p>
+          </div>
+
+          <div style={{ height: '1px', backgroundColor: '#f3f4f6', margin: '0 20px 16px' }} />
+
+          <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', padding: '0 20px', marginBottom: '8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Destinations
           </p>
+
+          {destinations.map(d => {
+            const isActive = d.slug === currentDestSlug
+            return (
+              <div
+                key={d.id}
+                onClick={() => d.available && navigate('/')}
+                style={{
+                  padding: '8px 20px',
+                  fontSize: '14px',
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
+                  cursor: d.available ? 'pointer' : 'default',
+                  backgroundColor: isActive ? '#f0faf6' : 'transparent',
+                  borderLeft: isActive ? '3px solid #0F2E1D' : '3px solid transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                {d.name}
+                {!d.available && (
+                  <span style={{ fontSize: '10px', color: '#d1d5db' }}>soon</span>
+                )}
+              </div>
+            )
+          })}
+
+          <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid #f3f4f6' }}>
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
+            <p style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
+          </div>
         </div>
-
-        <div style={{ height: '1px', backgroundColor: '#f3f4f6', margin: '0 20px 16px' }} />
-
-        <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', padding: '0 20px', marginBottom: '8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Destinations
-        </p>
-
-        {destinations.map(d => {
-          const isActive = d.slug === currentDestSlug
-          return (
-            <div
-              key={d.id}
-              onClick={() => d.available && navigate('/')}
-              style={{
-                padding: '8px 20px',
-                fontSize: '14px',
-                fontWeight: isActive ? 600 : 400,
-                color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
-                cursor: d.available ? 'pointer' : 'default',
-                backgroundColor: isActive ? '#f0faf6' : 'transparent',
-                borderLeft: isActive ? '3px solid #0F2E1D' : '3px solid transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              {d.name}
-              {!d.available && (
-                <span style={{ fontSize: '10px', color: '#d1d5db' }}>soon</span>
-              )}
-            </div>
-          )
-        })}
-
-        <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid #f3f4f6' }}>
-          <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
-          <p style={{ fontSize: '13px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
-        </div>
-      </div>
+      )}
 
       {/* ARTICLE */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: isMobile ? 'visible' : 'hidden', minWidth: 0 }}>
 
         {view === 'list' && (
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: 1, overflowY: isMobile ? 'visible' : 'auto' }}>
 
             {/* Hero */}
-            <div style={{ position: 'relative', height: '380px' }}>
+            <div style={{ position: 'relative', height: isMobile ? '260px' : '380px' }}>
               <img
                 src={article.cover_image}
                 alt={article.title}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '32px' }}>
-                <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? '20px' : '32px' }}>
+                <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
                   {article.title}
                 </h1>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 20px' }}>
@@ -291,7 +321,7 @@ export default function ArticlePage() {
             </div>
 
             {/* Content */}
-            <div style={{ padding: '32px 48px' }}>
+            <div style={{ padding: isMobile ? '24px 16px' : '32px 48px' }}>
               {article.intro && (
                 <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, marginBottom: '32px', maxWidth: '680px' }}>
                   <ReactMarkdown>{article.intro}</ReactMarkdown>
@@ -331,7 +361,7 @@ export default function ArticlePage() {
         )}
 
         {view === 'plan' && (
-          <div ref={planScrollRef} style={{ flex: 1, overflowY: 'auto', padding: '32px 48px' }}>
+          <div ref={planScrollRef} style={{ flex: 1, overflowY: isMobile ? 'visible' : 'auto', padding: isMobile ? '20px 16px' : '32px 48px' }}>
             <button
               onClick={() => { setView('list'); setItinerary(null) }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#6b7280', marginBottom: '24px', padding: 0 }}
@@ -361,7 +391,7 @@ export default function ArticlePage() {
       </div>
 
       {/* MAP */}
-      <div style={{ width: '40%', flexShrink: 0, height: '100vh' }}>
+      <div style={{ width: isMobile ? '100%' : '40%', flexShrink: 0, height: isMobile ? '320px' : '100vh' }}>
         <MapView places={mapPlaces} highlightedId={highlightedId} />
       </div>
 
