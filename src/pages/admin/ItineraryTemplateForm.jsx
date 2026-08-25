@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase/client'
 import { getAttractionsByRegion } from '../../lib/supabase/api'
 import { getRow, createRow, updateRow } from '../../lib/supabase/adminApi'
+import { loadDestinationOptions, loadRegionOptionsForDestination } from '../../lib/admin/entityConfigs'
 
 const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'inherit' }
 const primaryButtonStyle = { padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }
@@ -17,6 +18,8 @@ export default function ItineraryTemplateForm() {
   const navigate = useNavigate()
   const isEdit = Boolean(id)
 
+  const [destinationOptions, setDestinationOptions] = useState([])
+  const [destinationId, setDestinationId] = useState('')
   const [regionOptions, setRegionOptions] = useState([])
   const [regionId, setRegionId] = useState('')
   const [regionAttractions, setRegionAttractions] = useState([])
@@ -26,18 +29,29 @@ export default function ItineraryTemplateForm() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    supabase.from('regions').select('id, name, destinations(name)').order('name')
-      .then(({ data, error: err }) => {
-        if (err) throw err
-        setRegionOptions(data.map(r => ({ value: r.id, label: `${r.destinations?.name ?? '?'} — ${r.name}` })))
-      })
+    loadDestinationOptions()
+      .then(setDestinationOptions)
       .catch(err => setError(err.message))
   }, [])
 
   useEffect(() => {
+    loadRegionOptionsForDestination(destinationId)
+      .then(setRegionOptions)
+      .catch(err => setError(err.message))
+  }, [destinationId])
+
+  function handleDestinationChange(value) {
+    setDestinationId(value)
+    setRegionId('')
+  }
+
+  useEffect(() => {
     if (!isEdit) return
     getRow('itinerary_templates', id)
-      .then(row => {
+      .then(async row => {
+        const { data, error: err } = await supabase.from('regions').select('destination_id').eq('id', row.region_id).single()
+        if (err) throw err
+        setDestinationId(data.destination_id)
         setRegionId(row.region_id)
         setDays(row.body?.length ? row.body : [emptyDay(1)])
       })
@@ -101,12 +115,30 @@ export default function ItineraryTemplateForm() {
         {isEdit ? 'Edit' : 'Add'} Itinerary Template
       </h1>
 
+      <div style={{ marginBottom: '18px' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '6px' }}>
+          Destination
+        </label>
+        <select value={destinationId} onChange={e => handleDestinationChange(e.target.value)} required style={inputStyle}>
+          <option value="">Select...</option>
+          {destinationOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+
       <div style={{ marginBottom: '24px' }}>
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '6px' }}>
           Region
         </label>
-        <select value={regionId} onChange={e => setRegionId(e.target.value)} required style={inputStyle}>
-          <option value="">Select...</option>
+        <select
+          value={regionId}
+          onChange={e => setRegionId(e.target.value)}
+          required
+          disabled={!destinationId}
+          style={{ ...inputStyle, ...(!destinationId ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}) }}
+        >
+          <option value="">{destinationId ? 'Select...' : 'Select a destination first'}</option>
           {regionOptions.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}

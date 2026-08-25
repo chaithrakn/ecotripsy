@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase/client'
 import { getRow, createRow, updateRow } from '../../lib/supabase/adminApi'
+import { loadDestinationOptions, loadRegionOptionsForDestination } from '../../lib/admin/entityConfigs'
 import { PILLARS } from '../../lib/pillars'
 
 const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'inherit' }
@@ -50,20 +50,21 @@ export default function ContentPageForm() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    supabase.from('destinations').select('id, name').order('name')
-      .then(({ data, error: err }) => {
-        if (err) throw err
-        setDestinationOptions(data.map(d => ({ value: d.id, label: d.name })))
-      })
-      .catch(err => setError(err.message))
-
-    supabase.from('regions').select('id, name, destinations(name)').order('name')
-      .then(({ data, error: err }) => {
-        if (err) throw err
-        setRegionOptions(data.map(r => ({ value: r.id, label: `${r.destinations?.name ?? '?'} — ${r.name}` })))
-      })
+    loadDestinationOptions()
+      .then(setDestinationOptions)
       .catch(err => setError(err.message))
   }, [])
+
+  useEffect(() => {
+    loadRegionOptionsForDestination(destinationId)
+      .then(setRegionOptions)
+      .catch(err => setError(err.message))
+  }, [destinationId])
+
+  function handleDestinationChange(value) {
+    setDestinationId(value)
+    setRegionId('')
+  }
 
   useEffect(() => {
     if (!isEdit) return
@@ -172,7 +173,7 @@ export default function ContentPageForm() {
 
       <div style={{ marginBottom: '18px' }}>
         <label style={fieldLabelStyle}>Destination</label>
-        <select value={destinationId} onChange={e => setDestinationId(e.target.value)} required style={inputStyle}>
+        <select value={destinationId} onChange={e => handleDestinationChange(e.target.value)} required style={inputStyle}>
           <option value="">Select...</option>
           {destinationOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
@@ -180,8 +181,13 @@ export default function ContentPageForm() {
 
       <div style={{ marginBottom: '18px' }}>
         <label style={fieldLabelStyle}>Region (optional — leave blank for a destination-wide article)</label>
-        <select value={regionId} onChange={e => setRegionId(e.target.value)} style={inputStyle}>
-          <option value="">None</option>
+        <select
+          value={regionId}
+          onChange={e => setRegionId(e.target.value)}
+          disabled={!destinationId}
+          style={{ ...inputStyle, ...(!destinationId ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}) }}
+        >
+          <option value="">{destinationId ? 'None' : 'Select a destination first'}</option>
           {regionOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
       </div>

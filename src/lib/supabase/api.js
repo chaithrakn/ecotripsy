@@ -106,6 +106,28 @@ export async function getAllContentPages() {
   return data
 }
 
+export async function getLatestJournalEntries(limit = 4) {
+  const { data, error } = await supabase
+    .from('journal_entries')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
+export async function getJournalEntryBySlug(slug) {
+  const { data, error } = await supabase
+    .from('journal_entries')
+    .select('*')
+    .eq('slug', slug)
+    .eq('published', true)
+    .single()
+  if (error) throw error
+  return data
+}
+
 const PRICE_RANGE_ORDER = { budget: 0, mid: 1, luxury: 2 }
 
 function sortHotels(hotels, sortBy) {

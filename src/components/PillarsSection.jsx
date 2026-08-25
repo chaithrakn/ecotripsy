@@ -52,7 +52,7 @@ export default function PillarsSection() {
             <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 6px' }}>
               {pillar.title}
             </p>
-            <p style={{ fontSize: '12px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
+            <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
               {pillar.description}
             </p>
           </div>

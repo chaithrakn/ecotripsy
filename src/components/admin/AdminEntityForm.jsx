@@ -26,28 +26,49 @@ export default function AdminEntityForm({ config }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
+  const dependencyKey = config.fields.filter(f => f.dependsOn).map(f => values[f.dependsOn]).join('|')
+
   useEffect(() => {
     config.fields.forEach(field => {
-      if (field.loadOptions) {
+      if (!field.loadOptions) return
+      if (field.dependsOn) {
+        const depValue = values[field.dependsOn]
+        if (!depValue) {
+          setOptionsByField(prev => ({ ...prev, [field.name]: [] }))
+          return
+        }
+        field.loadOptions(depValue)
+          .then(opts => setOptionsByField(prev => ({ ...prev, [field.name]: opts })))
+          .catch(err => setError(err.message))
+      } else {
         field.loadOptions()
           .then(opts => setOptionsByField(prev => ({ ...prev, [field.name]: opts })))
           .catch(err => setError(err.message))
       }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config])
+  }, [config, dependencyKey])
 
   useEffect(() => {
     if (!isEdit) return
     getRow(config.table, id)
-      .then(row => setValues(v => ({ ...v, ...row })))
+      .then(async row => {
+        const extra = config.hydrateVirtual ? await config.hydrateVirtual(row) : {}
+        setValues(v => ({ ...v, ...row, ...extra }))
+      })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   function setField(name, value) {
-    setValues(v => ({ ...v, [name]: value }))
+    setValues(v => {
+      const next = { ...v, [name]: value }
+      config.fields.forEach(f => {
+        if (f.dependsOn === name) next[f.name] = f.type === 'multiselect' ? [] : ''
+      })
+      return next
+    })
   }
 
   function toggleMulti(name, option) {
@@ -65,8 +86,10 @@ export default function AdminEntityForm({ config }) {
     try {
       const payload = {}
       for (const field of config.fields) {
+        if (field.virtual) continue
         let val = values[field.name]
-        if (field.type === 'number') val = val === '' || val === null ? null : Number(val)
+        if (field.type === 'number' || field.type === 'decimal') val = val === '' || val === null ? null : Number(val)
+        if (field.type === 'select' && val === '') val = null
         payload[field.name] = val
       }
       if (isEdit) {
@@ -109,7 +132,7 @@ export default function AdminEntityForm({ config }) {
             <textarea
               value={values[field.name] || ''}
               onChange={e => setField(field.name, e.target.value)}
-              rows={4}
+              rows={field.rows || 4}
               style={inputStyle}
             />
           )}
@@ -120,6 +143,17 @@ export default function AdminEntityForm({ config }) {
               step={field.step || '1'}
               value={values[field.name] ?? ''}
               onChange={e => setField(field.name, e.target.value)}
+              style={inputStyle}
+            />
+          )}
+
+          {field.type === 'decimal' && (
+            <input
+              type="text"
+              inputMode="decimal"
+              value={values[field.name] ?? ''}
+              onChange={e => setField(field.name, e.target.value)}
+              required={field.required}
               style={inputStyle}
             />
           )}
@@ -138,9 +172,12 @@ export default function AdminEntityForm({ config }) {
               value={values[field.name] || ''}
               onChange={e => setField(field.name, e.target.value)}
               required={field.required}
-              style={inputStyle}
+              disabled={field.dependsOn && !values[field.dependsOn]}
+              style={{ ...inputStyle, ...(field.dependsOn && !values[field.dependsOn] ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}) }}
             >
-              <option value="">Select...</option>
+              <option value="">
+                {field.dependsOn && !values[field.dependsOn] ? 'Select a destination first' : 'Select...'}
+              </option>
               {(field.options || optionsByField[field.name] || []).map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}

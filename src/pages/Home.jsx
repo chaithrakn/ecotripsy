@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getLatestContentPages } from '../lib/supabase/api'
+import { getLatestContentPages, getLatestJournalEntries } from '../lib/supabase/api'
 import PillarsSection from '../components/PillarsSection'
 import useIsMobile from '../hooks/useIsMobile'
 
@@ -42,12 +42,6 @@ const STEPS = [
   }
 ]
 
-const DUMMY_STORIES = [
-  { tag: 'GUIDE', title: 'Story coming soon' },
-  { tag: 'PHILOSOPHY', title: 'Story coming soon' },
-  { tag: 'UPDATE', title: 'Story coming soon' }
-]
-
 function ArrowRight({ color = '#111827' }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -60,6 +54,8 @@ export default function Home() {
   const navigate = useNavigate()
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [journalEntries, setJournalEntries] = useState([])
+  const [journalLoading, setJournalLoading] = useState(true)
   const isMobile = useIsMobile()
 
   useEffect(() => {
@@ -71,13 +67,22 @@ export default function Home() {
     return () => { cancelled = true }
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+    getLatestJournalEntries(4)
+      .then(data => { if (!cancelled) setJournalEntries(data) })
+      .catch(err => console.error('Failed to load journal entries:', err))
+      .finally(() => { if (!cancelled) setJournalLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
   function scrollToDestinations() {
     document.getElementById('destinations')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <div style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '20px 16px 48px' : '32px 40px 64px 70px', display: 'flex', justifyContent: isMobile ? 'stretch' : 'flex-end' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1100px 280px', gap: '32px', alignItems: 'start', width: '100%', maxWidth: isMobile ? '100%' : 'none' }}>
+    <div style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '20px 16px 48px' : '32px 40px 64px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 280px', gap: '32px', alignItems: 'start', width: '100%', maxWidth: isMobile ? '100%' : '1440px', margin: isMobile ? '0' : '0 auto' }}>
 
         {/* MAIN COLUMN */}
         <div>
@@ -190,7 +195,7 @@ export default function Home() {
                     <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>
                       {i + 1}. {step.title}
                     </p>
-                    <p style={{ fontSize: '12px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
+                    <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
                       {step.description}
                     </p>
                   </div>
@@ -204,28 +209,39 @@ export default function Home() {
 
         </div>
 
-        {/* SIDEBAR: Travel stories (dummy placeholder for now) */}
+        {/* SIDEBAR: Field Notes */}
         <div style={{ marginTop: isMobile ? '40px' : 0 }}>
           <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', fontWeight: 500, color: '#111827', margin: '0 0 4px' }}>
-            Travel stories
+            Field Notes
           </h2>
-          <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 20px' }}>
-            Inspiration and guides for the thoughtful traveler.
+          <p style={{ fontSize: '15px', color: '#6b7280', margin: '0 0 20px' }}>
+            Short reads and reflections from the road.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            {DUMMY_STORIES.map((story, i) => (
-              <div key={i}>
-                <div style={{ borderRadius: '10px', backgroundColor: '#eeece5', marginBottom: '8px', aspectRatio: '16/10' }} />
-                <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', color: '#9ca3af', margin: '0 0 4px' }}>
-                  {story.tag}
-                </p>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: '#374151', margin: 0, lineHeight: 1.4 }}>
-                  {story.title}
-                </p>
-              </div>
-            ))}
-          </div>
+          {journalLoading ? (
+            <p style={{ fontSize: '13px', color: '#9ca3af' }}>Loading...</p>
+          ) : journalEntries.length === 0 ? (
+            <p style={{ fontSize: '13px', color: '#9ca3af' }}>No field notes yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              {journalEntries.map(entry => (
+                <div
+                  key={entry.id}
+                  onClick={() => navigate(`/journal/${entry.slug}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div style={{ borderRadius: '10px', overflow: 'hidden', backgroundColor: '#eeece5', marginBottom: '8px', aspectRatio: '16/10' }}>
+                    {entry.cover_image && (
+                      <img src={entry.cover_image} alt={entry.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    )}
+                  </div>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#374151', margin: 0, lineHeight: 1.4 }}>
+                    {entry.title}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
