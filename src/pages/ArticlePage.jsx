@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import MapView from '../components/MapView'
 import PropertyCard from '../components/PropertyCard'
 import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
+import CollapsibleSection from '../components/CollapsibleSection'
 import { getContentPageBySlug, getDestinations, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
 
 function TourCompanyList({ tours }) {
@@ -84,38 +85,6 @@ function renderBodyBlock(block, key, { highlightedId, setHighlightedId }) {
   return null
 }
 
-function ChevronIcon({ expanded }) {
-  return (
-    <svg
-      width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2"
-      style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease', flexShrink: 0 }}
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  )
-}
-
-function CollapsibleSection({ heading, children }) {
-  const [expanded, setExpanded] = useState(true)
-  return (
-    <div style={{ marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', maxWidth: '680px' }}>
-        <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, flex: 1 }}>
-          <ReactMarkdown>{heading.content}</ReactMarkdown>
-        </div>
-        <button
-          onClick={() => setExpanded(e => !e)}
-          aria-label={expanded ? 'Collapse section' : 'Expand section'}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '999px', border: '1px solid #e5e7eb', backgroundColor: 'white', cursor: 'pointer', flexShrink: 0, marginTop: '2px' }}
-        >
-          <ChevronIcon expanded={expanded} />
-        </button>
-      </div>
-      {expanded && <div style={{ marginTop: '8px' }}>{children}</div>}
-    </div>
-  )
-}
-
 export default function ArticlePage() {
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -127,6 +96,11 @@ export default function ArticlePage() {
   const [highlightedId, setHighlightedId] = useState(null)
   const [attractions, setAttractions] = useState([])
   const [tripTemplate, setTripTemplate] = useState(null)
+  const planScrollRef = useRef(null)
+
+  useEffect(() => {
+    if (itinerary) planScrollRef.current?.scrollTo({ top: 0 })
+  }, [itinerary])
 
   useEffect(() => {
     let cancelled = false
@@ -335,7 +309,14 @@ export default function ArticlePage() {
 
               {groupBodyIntoSections(article.body).map((section, i) =>
                 section.heading ? (
-                  <CollapsibleSection key={i} heading={section.heading}>
+                  <CollapsibleSection
+                    key={i}
+                    heading={
+                      <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.8, maxWidth: '680px' }}>
+                        <ReactMarkdown>{section.heading.content}</ReactMarkdown>
+                      </div>
+                    }
+                  >
                     {section.blocks.map((block, j) => renderBodyBlock(block, j, { highlightedId, setHighlightedId }))}
                   </CollapsibleSection>
                 ) : (
@@ -350,7 +331,7 @@ export default function ArticlePage() {
         )}
 
         {view === 'plan' && (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '32px 48px' }}>
+          <div ref={planScrollRef} style={{ flex: 1, overflowY: 'auto', padding: '32px 48px' }}>
             <button
               onClick={() => { setView('list'); setItinerary(null) }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#6b7280', marginBottom: '24px', padding: 0 }}
@@ -360,7 +341,6 @@ export default function ArticlePage() {
             {!itinerary ? (
               <TripForm
                 hotels={hotels}
-                regionId={hotels[0]?.region_id}
                 tripTemplate={tripTemplate}
                 onItinerary={(result) => setItinerary(result)}
               />

@@ -20,7 +20,7 @@ function toActivity(attraction) {
   }
 }
 
-export async function buildItinerary({ regionId, days, hotel }) {
+export async function buildItinerary({ regionId, regionName, days, hotel }) {
   const template = await getItineraryTemplate(regionId, days)
   const mustVisitIds = template.body.flatMap(day => day.attraction_ids || [])
   const usedIds = new Set(mustVisitIds)
@@ -59,11 +59,28 @@ export async function buildItinerary({ regionId, days, hotel }) {
       activities,
       departNote: day.depart ? 'Depart.' : null,
       tourSuggestions,
+      regionId,
+      regionName: regionName || null,
       hotel: toHotelPlace(hotel)
     }
   })
 
   return { days: resultDays }
+}
+
+export async function buildMultiRegionItinerary({ selections }) {
+  const allDays = []
+  let dayOffset = 0
+
+  for (const { regionId, regionName, days, hotel } of selections) {
+    const leg = await buildItinerary({ regionId, regionName, days, hotel })
+    for (const day of leg.days) {
+      allDays.push({ ...day, day: day.day + dayOffset })
+    }
+    dayOffset += leg.days.length
+  }
+
+  return { days: allDays }
 }
 
 export async function buildTripItinerary({ template, hotels }) {
@@ -106,6 +123,8 @@ export async function buildTripItinerary({ template, hotels }) {
       checkinNote,
       departNote: day.depart ? 'Depart.' : null,
       tourSuggestions: [],
+      regionId: template.legs[currentHotelIndex]?.region_id || null,
+      regionName: template.legs[currentHotelIndex]?.label || null,
       hotel: toHotelPlace(hotel)
     }
   })

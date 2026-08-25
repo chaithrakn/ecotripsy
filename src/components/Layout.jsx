@@ -29,14 +29,14 @@ export default function Layout({ children }) {
         borderBottom: '1px solid #e5e4e0',
         padding: '16px 40px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
           <img
             src="/logo2.png"
             alt="Greenlugg"
             onClick={() => navigate('/')}
-            style={{ height: '40px', width: 'auto', cursor: 'pointer' }}
+            style={{ height: '40px', width: 'auto', cursor: 'pointer', justifySelf: 'start' }}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px', justifySelf: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
               Destinations <ChevronDown />
             </span>
@@ -46,6 +46,12 @@ export default function Layout({ children }) {
             <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>Inspiration</span>
             <span style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>About</span>
           </div>
+          <button
+            onClick={() => navigate('/plan-a-trip')}
+            style={{ width: '190px', padding: '10px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '999px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', justifySelf: 'end' }}
+          >
+            Plan a trip
+          </button>
         </div>
       </nav>
 
@@ -57,10 +63,10 @@ export default function Layout({ children }) {
       {/* Footer */}
       <footer style={{ backgroundColor: '#f3f2ee', color: '#111827', padding: '56px 40px 32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '48px', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ maxWidth: '280px' }}>
+          <div style={{ maxWidth: '340px' }}>
             <img src="/logo2.png" alt="Greenlugg" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
             <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6 }}>
-              Curated sustainable travel, built around experiences.
+              At Greenlugg, we are passionate about preserving the environments and communities we travel through. We are building the ecosystem to curate the world's best sustainable and regenerative hotels and experiences, to make your travel more meaningful.
             </p>
             <div style={{ display: 'flex', gap: '14px', marginTop: '20px' }}>
               {SOCIALS.map(social => (

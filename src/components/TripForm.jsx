@@ -1,13 +1,40 @@
 import { useState } from 'react'
-import { buildItinerary, buildTripItinerary } from '../lib/itinerary'
+import { buildItinerary, buildTripItinerary, buildMultiRegionItinerary } from '../lib/itinerary'
+import { getDefaultDaysForRegion } from '../lib/supabase/api'
 
-const DAYS = 3
-
-export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }) {
+export default function TripForm({ hotels, tripTemplate, onItinerary }) {
   const [selectedHotel, setSelectedHotel] = useState(hotels[0]?.id || '')
   const [selectedLegHotels, setSelectedLegHotels] = useState({})
+  const [selectedRegionHotels, setSelectedRegionHotels] = useState({})
+  const [selectedRegions, setSelectedRegions] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  const regionGroups = Object.entries(
+    hotels.reduce((groups, hotel) => {
+      const key = hotel.region_id || 'unknown'
+      groups[key] = groups[key] || []
+      groups[key].push(hotel)
+      return groups
+    }, {})
+  )
+  const hasMultipleRegions = regionGroups.length > 1
+  const availableRegions = regionGroups.map(([key, regionHotels]) => ({
+    id: key,
+    name: regionHotels[0].regions?.name || key
+  }))
+  const combineMode = selectedRegions.length >= 2
+
+  function toggleRegion(regionId) {
+    setSelectedRegions(current =>
+      current.includes(regionId) ? current.filter(id => id !== regionId) : [...current, regionId]
+    )
+  }
+
+  const visibleGroups = selectedRegions.length === 0
+    ? regionGroups
+    : regionGroups.filter(([key]) => selectedRegions.includes(key))
+  const showRegionHeadings = visibleGroups.length > 1
 
   async function handleSubmit() {
     setLoading(true)
@@ -23,9 +50,22 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
         }
         const itinerary = await buildTripItinerary({ template: tripTemplate, hotels: orderedHotels })
         onItinerary(itinerary)
+      } else if (combineMode) {
+        const selections = []
+        for (const regionId of selectedRegions) {
+          const hotel = hotels.find(h => h.id === selectedRegionHotels[regionId])
+          if (!hotel) throw new Error('Select a hotel for every region')
+          const days = await getDefaultDaysForRegion(regionId)
+          const regionName = availableRegions.find(r => r.id === regionId)?.name
+          selections.push({ regionId, regionName, hotel, days })
+        }
+        const itinerary = await buildMultiRegionItinerary({ selections })
+        onItinerary(itinerary)
       } else {
         const hotel = hotels.find(h => h.id === selectedHotel)
-        const itinerary = await buildItinerary({ regionId, days: DAYS, hotel })
+        const days = await getDefaultDaysForRegion(hotel.region_id)
+        const regionName = hotel.regions?.name
+        const itinerary = await buildItinerary({ regionId: hotel.region_id, regionName, days, hotel })
         onItinerary(itinerary)
       }
     } catch (err) {
@@ -110,65 +150,122 @@ export default function TripForm({ hotels, regionId, tripTemplate, onItinerary }
     )
   }
 
+  const canSubmit = combineMode
+    ? selectedRegions.every(regionId => selectedRegionHotels[regionId])
+    : Boolean(selectedHotel)
+
   return (
     <div>
       <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>
         Plan Your Trip
       </h2>
       <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '28px' }}>
-        Select your stay and we'll build a day-by-day itinerary.
+        {combineMode
+          ? 'Pick a hotel for each region — we\'ll combine them into one trip.'
+          : 'Select your stay and we\'ll build a day-by-day itinerary.'}
       </p>
+
+      {/* Region filter (optional) */}
+      {hasMultipleRegions && (
+        <div style={{ marginBottom: '24px' }}>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
+            What regions will you travel to? <span style={{ fontWeight: 400, color: '#9ca3af' }}>(optional)</span>
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {availableRegions.map(region => (
+              <button
+                key={region.id}
+                type="button"
+                onClick={() => toggleRegion(region.id)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '999px',
+                  border: `1px solid ${selectedRegions.includes(region.id) ? '#0F2E1D' : '#d1d5db'}`,
+                  backgroundColor: selectedRegions.includes(region.id) ? '#0F2E1D' : 'white',
+                  color: selectedRegions.includes(region.id) ? 'white' : '#374151',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer'
+                }}
+              >
+                {region.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Hotel selection */}
       <div style={{ marginBottom: '32px' }}>
         <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
           Where will you stay?
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {hotels.map(hotel => (
-            <label
-              key={hotel.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: `1px solid ${selectedHotel === hotel.id ? '#0F2E1D' : '#e5e7eb'}`,
-                backgroundColor: selectedHotel === hotel.id ? '#f0faf6' : 'white',
-                cursor: 'pointer'
-              }}
-            >
-              <input
-                type="radio"
-                name="hotel"
-                value={hotel.id}
-                checked={selectedHotel === hotel.id}
-                onChange={() => setSelectedHotel(hotel.id)}
-                style={{ accentColor: '#0F2E1D' }}
-              />
-              <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
-                {hotel.name}
+        {(combineMode
+          ? regionGroups.filter(([key]) => selectedRegions.includes(key))
+          : visibleGroups
+        ).map(([regionKey, regionHotels]) => (
+          <div key={regionKey} style={{ marginBottom: '20px' }}>
+            {(combineMode || showRegionHeadings) && (
+              <p style={{ fontSize: '13px', fontWeight: 600, color: '#6b7280', marginBottom: '10px' }}>
+                {regionHotels[0].regions?.name || regionKey}
               </p>
-            </label>
-          ))}
-        </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {regionHotels.map(hotel => {
+                const isSelected = combineMode
+                  ? selectedRegionHotels[regionKey] === hotel.id
+                  : selectedHotel === hotel.id
+                return (
+                  <label
+                    key={hotel.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '12px 16px',
+                      borderRadius: '10px',
+                      border: `1px solid ${isSelected ? '#0F2E1D' : '#e5e7eb'}`,
+                      backgroundColor: isSelected ? '#f0faf6' : 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name={combineMode ? `hotel-${regionKey}` : 'hotel'}
+                      value={hotel.id}
+                      checked={isSelected}
+                      onChange={() =>
+                        combineMode
+                          ? setSelectedRegionHotels(s => ({ ...s, [regionKey]: hotel.id }))
+                          : setSelectedHotel(hotel.id)
+                      }
+                      style={{ accentColor: '#0F2E1D' }}
+                    />
+                    <p style={{ margin: 0, fontWeight: 500, fontSize: '14px', color: '#111827' }}>
+                      {hotel.name}
+                    </p>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={loading || !canSubmit}
         style={{
           width: '100%',
           padding: '12px',
-          backgroundColor: loading ? '#9ca3af' : '#0F2E1D',
+          backgroundColor: loading || !canSubmit ? '#9ca3af' : '#0F2E1D',
           color: 'white',
           border: 'none',
           borderRadius: '10px',
           fontSize: '15px',
           fontWeight: 600,
-          cursor: loading ? 'not-allowed' : 'pointer'
+          cursor: loading || !canSubmit ? 'not-allowed' : 'pointer'
         }}
       >
         {loading ? 'Generating...' : 'Generate Itinerary →'}

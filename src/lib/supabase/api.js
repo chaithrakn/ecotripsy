@@ -41,6 +41,18 @@ export async function getItineraryTemplate(regionId, days) {
   return data
 }
 
+export async function getDefaultDaysForRegion(regionId) {
+  const { data, error } = await supabase
+    .from('itinerary_templates')
+    .select('days')
+    .eq('region_id', regionId)
+    .order('days', { ascending: true })
+    .limit(1)
+    .single()
+  if (error) throw error
+  return data.days
+}
+
 export async function getAttractionsByIds(ids) {
   if (!ids || ids.length === 0) return []
   const { data, error } = await supabase.from('attractions').select('*').in('id', ids)
@@ -123,7 +135,7 @@ async function resolveHotelListBlock(regionIds, block) {
   const scopedRegionIds = block.region_id ? [block.region_id] : regionIds
   if (scopedRegionIds.length === 0) return { ...block, hotels: [] }
 
-  let query = supabase.from('hotels').select('*').in('region_id', scopedRegionIds)
+  let query = supabase.from('hotels').select('*, regions(name)').in('region_id', scopedRegionIds)
   if (block.price_range) query = query.eq('price_range', block.price_range)
   if (block.certified !== undefined) query = query.eq('certified', block.certified)
   if (block.pillars?.length > 0) query = query.contains('pillars', block.pillars)
