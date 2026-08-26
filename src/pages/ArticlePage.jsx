@@ -1,17 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import MapView from '../components/MapView'
 import PropertyCard from '../components/PropertyCard'
 import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
 import CollapsibleSection from '../components/CollapsibleSection'
-import { AccountNavLinks, LogoutButton } from '../components/AccountRail'
-import { getContentPageBySlug, getDestinations, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
+import { AccountNavLinks, LogoutButton, GuestNavLinks } from '../components/AccountRail'
+import { getContentPageBySlug, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
 import { getSavedHotelIds, saveHotel, unsaveHotel, getSavedTourCompanyIds, saveTourCompany, unsaveTourCompany, getSavedGuideIds, saveGuide, unsaveGuide } from '../lib/supabase/saved'
 import { useAuth } from '../context/AuthContext'
 import HeartButton from '../components/HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
+import { setPendingSave } from '../lib/pendingSave'
 
 function TourCompanyList({ tours, savedIds, onToggleSave }) {
   if (!tours?.length) return null
@@ -98,10 +99,10 @@ function renderBodyBlock(block, key, { highlightedId, setHighlightedId, savedHot
 export default function ArticlePage() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [view, setView] = useState('list')
   const [itinerary, setItinerary] = useState(null)
   const [article, setArticle] = useState(null)
-  const [destinations, setDestinations] = useState([])
   const [loading, setLoading] = useState(true)
   const [highlightedId, setHighlightedId] = useState(null)
   const [attractions, setAttractions] = useState([])
@@ -137,7 +138,12 @@ export default function ArticlePage() {
   }, [user])
 
   async function toggleSaveGuide() {
-    if (!user || !article) return
+    if (!article) return
+    if (!user) {
+      setPendingSave({ type: 'guide', id: article.id, returnTo: location.pathname })
+      navigate('/login')
+      return
+    }
     const isSaved = savedGuideIds.has(article.id)
     setSavedGuideIds(current => {
       const next = new Set(current)
@@ -158,7 +164,11 @@ export default function ArticlePage() {
   }
 
   async function toggleSaveHotel(hotelId) {
-    if (!user) return
+    if (!user) {
+      setPendingSave({ type: 'hotel', id: hotelId, returnTo: location.pathname })
+      navigate('/login')
+      return
+    }
     const isSaved = savedHotelIds.has(hotelId)
     setSavedHotelIds(current => {
       const next = new Set(current)
@@ -179,7 +189,11 @@ export default function ArticlePage() {
   }
 
   async function toggleSaveTourCompany(tourCompanyId) {
-    if (!user) return
+    if (!user) {
+      setPendingSave({ type: 'tourCompany', id: tourCompanyId, returnTo: location.pathname })
+      navigate('/login')
+      return
+    }
     const isSaved = savedTourCompanyIds.has(tourCompanyId)
     setSavedTourCompanyIds(current => {
       const next = new Set(current)
@@ -202,11 +216,10 @@ export default function ArticlePage() {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    Promise.all([getContentPageBySlug(slug), getDestinations()])
-      .then(([articleData, destinationsData]) => {
+    getContentPageBySlug(slug)
+      .then(articleData => {
         if (cancelled) return
         setArticle(articleData)
-        setDestinations(destinationsData)
       })
       .catch(err => { if (!cancelled) console.error('Failed to load article:', err) })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -248,7 +261,6 @@ export default function ArticlePage() {
     <div style={{ padding: '40px', fontFamily: 'Inter, sans-serif' }}>Article not found.</div>
   )
 
-  const currentDestSlug = article.destinations?.slug ?? article.regions?.destinations?.slug
   const hotels = article.body
     .filter(block => block.type === 'hotel_list')
     .flatMap(block => block.hotels)
@@ -339,59 +351,22 @@ export default function ArticlePage() {
                 onClick={() => navigate('/')}
               />
             </span>
-            <p style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', margin: '2px 0 0', letterSpacing: '0.03em' }}>
-              curated sustainable travel
-            </p>
           </div>
 
           <div style={{ height: '1px', backgroundColor: '#f3f4f6', margin: '0 20px 16px' }} />
 
-          {isLoggedIn ? (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 16px' }}>
-              <AccountNavLinks />
-              <div style={{ marginTop: 'auto' }}>
-                <LogoutButton />
-              </div>
-            </div>
-          ) : (
-            <>
-              <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', padding: '0 20px', marginBottom: '8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                Destinations
-              </p>
-
-              {destinations.map(d => {
-                const isActive = d.slug === currentDestSlug
-                return (
-                  <div
-                    key={d.id}
-                    onClick={() => d.available && navigate('/')}
-                    style={{
-                      padding: '8px 20px',
-                      fontSize: '15px',
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
-                      cursor: d.available ? 'pointer' : 'default',
-                      backgroundColor: isActive ? '#f0faf6' : 'transparent',
-                      borderLeft: isActive ? '3px solid #0F2E1D' : '3px solid transparent',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    {d.name}
-                    {!d.available && (
-                      <span style={{ fontSize: '10px', color: '#d1d5db' }}>soon</span>
-                    )}
-                  </div>
-                )
-              })}
-
-              <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid #f3f4f6' }}>
-                <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
-                <p style={{ fontSize: '15px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
-              </div>
-            </>
-          )}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 16px' }}>
+            {isLoggedIn ? (
+              <>
+                <AccountNavLinks />
+                <div style={{ marginTop: 'auto' }}>
+                  <LogoutButton />
+                </div>
+              </>
+            ) : (
+              <GuestNavLinks />
+            )}
+          </div>
         </div>
       )}
 
@@ -409,13 +384,11 @@ export default function ArticlePage() {
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
-              {isLoggedIn && (
-                <HeartButton
-                  saved={savedGuideIds.has(article.id)}
-                  onClick={toggleSaveGuide}
-                  style={{ position: 'absolute', top: isMobile ? '16px' : '24px', right: isMobile ? '16px' : '24px' }}
-                />
-              )}
+              <HeartButton
+                saved={savedGuideIds.has(article.id)}
+                onClick={toggleSaveGuide}
+                style={{ position: 'absolute', top: isMobile ? '16px' : '24px', right: isMobile ? '16px' : '24px' }}
+              />
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? '20px' : '32px' }}>
                 <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
                   {article.title}
@@ -449,7 +422,7 @@ export default function ArticlePage() {
                   <TourCompanyList
                     tours={article.tourCompanies}
                     savedIds={savedTourCompanyIds}
-                    onToggleSave={isLoggedIn ? toggleSaveTourCompany : undefined}
+                    onToggleSave={toggleSaveTourCompany}
                   />
                 </div>
               )}
@@ -466,16 +439,16 @@ export default function ArticlePage() {
                   >
                     {section.blocks.map((block, j) => renderBodyBlock(block, j, {
                       highlightedId, setHighlightedId,
-                      savedHotelIds, onToggleSaveHotel: isLoggedIn ? toggleSaveHotel : undefined,
-                      savedTourCompanyIds, onToggleSaveTourCompany: isLoggedIn ? toggleSaveTourCompany : undefined
+                      savedHotelIds, onToggleSaveHotel: toggleSaveHotel,
+                      savedTourCompanyIds, onToggleSaveTourCompany: toggleSaveTourCompany
                     }))}
                   </CollapsibleSection>
                 ) : (
                   <div key={i}>
                     {section.blocks.map((block, j) => renderBodyBlock(block, j, {
                       highlightedId, setHighlightedId,
-                      savedHotelIds, onToggleSaveHotel: isLoggedIn ? toggleSaveHotel : undefined,
-                      savedTourCompanyIds, onToggleSaveTourCompany: isLoggedIn ? toggleSaveTourCompany : undefined
+                      savedHotelIds, onToggleSaveHotel: toggleSaveHotel,
+                      savedTourCompanyIds, onToggleSaveTourCompany: toggleSaveTourCompany
                     }))}
                   </div>
                 )

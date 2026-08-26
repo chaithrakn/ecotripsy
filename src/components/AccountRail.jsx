@@ -1,6 +1,13 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+const EXPLORE_ICON = (
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m14.5 9.5-1.5 5-5 1.5 1.5-5z" />
+  </>
+)
+
 const NAV_ITEMS = [
   {
     label: 'Saved',
@@ -21,12 +28,7 @@ const NAV_ITEMS = [
   {
     label: 'Explore',
     path: '/plan-a-trip',
-    icon: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="m14.5 9.5-1.5 5-5 1.5 1.5-5z" />
-      </>
-    )
+    icon: EXPLORE_ICON
   }
 ]
 
@@ -35,6 +37,14 @@ const LOGOUT_ICON = (
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     <path d="M16 17l5-5-5-5" />
     <path d="M21 12H9" />
+  </>
+)
+
+const LOGIN_ICON = (
+  <>
+    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+    <path d="M10 17l5-5-5-5" />
+    <path d="M15 12H3" />
   </>
 )
 
@@ -72,6 +82,18 @@ export function AccountNavLinks() {
           label={item.label}
         />
       ))}
+    </>
+  )
+}
+
+export function GuestNavLinks() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  return (
+    <>
+      <RailRow active={location.pathname === '/plan-a-trip'} onClick={() => navigate('/plan-a-trip')} icon={EXPLORE_ICON} label="Explore" />
+      <RailRow active={location.pathname === '/login'} onClick={() => navigate('/login')} icon={LOGIN_ICON} label="Log in" />
     </>
   )
 }

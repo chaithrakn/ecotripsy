@@ -51,6 +51,14 @@ export default function SavedItineraryPage() {
         ← Back to trips
       </span>
 
+      {entry.content_pages?.cover_image && (
+        <img
+          src={entry.content_pages.cover_image}
+          alt={entry.title}
+          style={{ width: '100%', height: '260px', objectFit: 'cover', borderRadius: '16px', marginBottom: '24px' }}
+        />
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '8px' }}>
         <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: '28px', fontWeight: 500, color: '#111827', margin: 0 }}>
           {entry.title}

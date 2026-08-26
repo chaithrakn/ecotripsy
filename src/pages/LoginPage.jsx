@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { takePendingSave, executePendingSave } from '../lib/pendingSave'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -15,8 +16,12 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
     try {
-      await signIn(email, password)
-      navigate('/')
+      const { user } = await signIn(email, password)
+      const pending = takePendingSave()
+      if (pending && user) {
+        try { await executePendingSave(user.id, pending) } catch (err) { console.error('Failed to complete pending save:', err) }
+      }
+      navigate(pending?.returnTo || '/')
     } catch (err) {
       setError(err.message)
     } finally {

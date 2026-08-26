@@ -47,6 +47,7 @@ export default function TripsPage() {
           {itineraries.map(it => (
             <SavedCard
               key={it.id}
+              image={it.content_pages?.cover_image}
               title={it.title}
               subtitle={`Saved ${new Date(it.created_at).toLocaleDateString()}`}
               linkLabel="View itinerary"

@@ -61,7 +61,7 @@ export async function saveItinerary(userId, { contentPageId, title, body }) {
 export async function getSavedItineraries(userId) {
   const { data, error } = await supabase
     .from('saved_itineraries')
-    .select('*, content_pages(slug)')
+    .select('*, content_pages(slug, cover_image)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -76,7 +76,7 @@ export async function deleteSavedItinerary(userId, id) {
 export async function getSavedItineraryById(userId, id) {
   const { data, error } = await supabase
     .from('saved_itineraries')
-    .select('*, content_pages(slug, title)')
+    .select('*, content_pages(slug, title, cover_image)')
     .eq('user_id', userId)
     .eq('id', id)
     .single()

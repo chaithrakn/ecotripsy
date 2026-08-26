@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getSavedGuideIds, saveGuide, unsaveGuide } from '../lib/supabase/saved'
+import { setPendingSave } from '../lib/pendingSave'
 import HeartButton from './HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
 
@@ -87,8 +88,9 @@ function TripCard({ article, onClick, saved, onToggleSave }) {
 
 export default function ArticleGrid({ articles, loading, emptyMessage }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const isMobile = useIsMobile()
-  const { user, isLoggedIn } = useAuth()
+  const { user } = useAuth()
   const [savedIds, setSavedIds] = useState(new Set())
 
   useEffect(() => {
@@ -104,7 +106,11 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
   }, [user])
 
   async function toggleSave(contentPageId) {
-    if (!user) return
+    if (!user) {
+      setPendingSave({ type: 'guide', id: contentPageId, returnTo: location.pathname })
+      navigate('/login')
+      return
+    }
     const wasSaved = savedIds.has(contentPageId)
     setSavedIds(current => {
       const next = new Set(current)
@@ -135,7 +141,7 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
           article={article}
           onClick={() => navigate(`/articles/${article.slug}`)}
           saved={savedIds.has(article.id)}
-          onToggleSave={isLoggedIn ? toggleSave : undefined}
+          onToggleSave={toggleSave}
         />
       ))}
     </div>
