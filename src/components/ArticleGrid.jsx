@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { getSavedGuideIds, saveGuide, unsaveGuide } from '../lib/supabase/saved'
+import HeartButton from './HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
 
-function TripCard({ article, onClick }) {
+function TripCard({ article, onClick, saved, onToggleSave }) {
   const [hovered, setHovered] = useState(false)
   const placeName = article.destinations?.name ?? article.regions?.name ?? article.title
   const heading = article.trip_days
@@ -27,8 +30,15 @@ function TripCard({ article, onClick }) {
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
       }}
     >
-      <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '14px', aspectRatio: '4/3', minWidth: 0, width: '100%' }}>
+      <div style={{ position: 'relative', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px', aspectRatio: '4/3', minWidth: 0, width: '100%' }}>
         <img src={article.cover_image} alt={placeName} style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
+        {onToggleSave && (
+          <HeartButton
+            saved={saved}
+            onClick={() => onToggleSave(article.id)}
+            style={{ position: 'absolute', top: '10px', right: '10px' }}
+          />
+        )}
       </div>
 
       <h3 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: '21px', fontWeight: 600, color: '#111827', margin: '0 0 6px', lineHeight: 1.3 }}>
@@ -78,6 +88,41 @@ function TripCard({ article, onClick }) {
 export default function ArticleGrid({ articles, loading, emptyMessage }) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
+  const { user, isLoggedIn } = useAuth()
+  const [savedIds, setSavedIds] = useState(new Set())
+
+  useEffect(() => {
+    if (!user) {
+      setSavedIds(new Set())
+      return
+    }
+    let cancelled = false
+    getSavedGuideIds(user.id)
+      .then(ids => { if (!cancelled) setSavedIds(new Set(ids)) })
+      .catch(err => console.error('Failed to load saved guides:', err))
+    return () => { cancelled = true }
+  }, [user])
+
+  async function toggleSave(contentPageId) {
+    if (!user) return
+    const wasSaved = savedIds.has(contentPageId)
+    setSavedIds(current => {
+      const next = new Set(current)
+      wasSaved ? next.delete(contentPageId) : next.add(contentPageId)
+      return next
+    })
+    try {
+      if (wasSaved) await unsaveGuide(user.id, contentPageId)
+      else await saveGuide(user.id, contentPageId)
+    } catch (err) {
+      console.error('Failed to save guide:', err)
+      setSavedIds(current => {
+        const next = new Set(current)
+        wasSaved ? next.add(contentPageId) : next.delete(contentPageId)
+        return next
+      })
+    }
+  }
 
   if (loading) return <p style={{ color: '#6b7280', fontSize: '15px' }}>Loading...</p>
   if (articles.length === 0) return <p style={{ fontSize: '15px', color: '#9ca3af' }}>{emptyMessage || 'No stories published yet.'}</p>
@@ -85,7 +130,13 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>
       {articles.map(article => (
-        <TripCard key={article.id} article={article} onClick={() => navigate(`/articles/${article.slug}`)} />
+        <TripCard
+          key={article.id}
+          article={article}
+          onClick={() => navigate(`/articles/${article.slug}`)}
+          saved={savedIds.has(article.id)}
+          onToggleSave={isLoggedIn ? toggleSave : undefined}
+        />
       ))}
     </div>
   )

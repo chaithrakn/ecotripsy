@@ -1,7 +1,8 @@
 import { PILLAR_COLORS } from '../lib/pillars'
 import useIsMobile from '../hooks/useIsMobile'
+import HeartButton from './HeartButton'
 
-export default function PropertyCard({ hotel, highlighted, onHighlight }) {
+export default function PropertyCard({ hotel, highlighted, onHighlight, saved, onToggleSave }) {
   const isMobile = useIsMobile()
   return (
     <div
@@ -35,14 +36,17 @@ export default function PropertyCard({ hotel, highlighted, onHighlight }) {
               </p>
             )}
           </div>
-          <a
-            href={hotel.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '16px' }}
-          >
-            Book Now
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px', flexShrink: 0 }}>
+            {onToggleSave && <HeartButton saved={saved} onClick={() => onToggleSave(hotel.id)} />}
+            <a
+              href={hotel.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap' }}
+            >
+              Book Now
+            </a>
+          </div>
         </div>
         <p style={{ fontSize: '15px', color: '#4b5563', marginBottom: '8px' }}>{hotel.description}</p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>

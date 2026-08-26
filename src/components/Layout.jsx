@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllContentPages } from '../lib/supabase/api'
+import { useAuth } from '../context/AuthContext'
 import useIsMobile from '../hooks/useIsMobile'
+import AccountRail from './AccountRail'
 
 function ChevronDown() {
   return (
@@ -81,6 +83,63 @@ function PlacesDropdown() {
   )
 }
 
+function AccountMenu() {
+  const navigate = useNavigate()
+  const { user, isLoggedIn, signOut } = useAuth()
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  if (!isLoggedIn) {
+    return (
+      <span
+        onClick={() => navigate('/login')}
+        style={{ fontSize: '15px', color: '#374151', cursor: 'pointer', whiteSpace: 'nowrap' }}
+      >
+        Log in
+      </span>
+    )
+  }
+
+  async function handleSignOut() {
+    setOpen(false)
+    await signOut()
+    navigate('/')
+  }
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <span
+        onClick={() => setOpen(o => !o)}
+        style={{ fontSize: '15px', color: '#374151', cursor: 'pointer', whiteSpace: 'nowrap' }}
+      >
+        {user.email}
+      </span>
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+          backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.16)',
+          padding: '8px', minWidth: '160px', zIndex: 50
+        }}>
+          <div
+            onClick={handleSignOut}
+            style={{ padding: '10px 14px', borderRadius: '8px', fontSize: '15px', color: '#111827', cursor: 'pointer' }}
+          >
+            Sign out
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const SOCIALS = [
   { name: 'Instagram', path: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm5.5-1a1 1 0 1 1 0-2 1 1 0 0 1 0 2z' },
   { name: 'Facebook', path: 'M14 8h3V4h-3a5 5 0 0 0-5 5v2H6v4h3v7h4v-7h3l1-4h-4V9a1 1 0 0 1 1-1z' },
@@ -91,6 +150,7 @@ export default function Layout({ children }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const isMobile = useIsMobile()
+  const { isLoggedIn } = useAuth()
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#faf9f6' }}>
@@ -111,23 +171,34 @@ export default function Layout({ children }) {
           />
           {!isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '32px', justifySelf: 'center' }}>
+              <span onClick={() => navigate('/plan-a-trip')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Explore</span>
               <PlacesDropdown />
               <span onClick={() => navigate('/journal')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Field Notes</span>
               <span style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>About</span>
             </div>
           )}
-          <button
-            onClick={() => navigate('/plan-a-trip')}
-            style={{ width: isMobile ? 'auto' : '190px', padding: isMobile ? '9px 16px' : '10px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '999px', fontSize: isMobile ? '13px' : '14px', fontWeight: 600, cursor: 'pointer', justifySelf: 'end', whiteSpace: 'nowrap' }}
-          >
-            Plan a trip
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifySelf: 'end' }}>
+            {!isMobile && <AccountMenu />}
+            <button
+              onClick={() => navigate('/plan-a-trip')}
+              style={{ width: isMobile ? 'auto' : '190px', padding: isMobile ? '9px 16px' : '10px 0', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '999px', fontSize: isMobile ? '13px' : '14px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              Plan a trip
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* Page content */}
-      <div style={{ flex: 1 }}>
-        {children}
+      <div style={{ flex: 1, display: 'flex' }}>
+        {!isMobile && isLoggedIn && (
+          <div style={{ position: 'sticky', top: '73px', height: 'calc(100vh - 73px)', alignSelf: 'flex-start' }}>
+            <AccountRail />
+          </div>
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {children}
+        </div>
       </div>
 
       {/* Footer */}

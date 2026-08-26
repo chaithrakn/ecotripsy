@@ -6,10 +6,14 @@ import PropertyCard from '../components/PropertyCard'
 import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
 import CollapsibleSection from '../components/CollapsibleSection'
+import { AccountNavLinks, LogoutButton } from '../components/AccountRail'
 import { getContentPageBySlug, getDestinations, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
+import { getSavedHotelIds, saveHotel, unsaveHotel, getSavedTourCompanyIds, saveTourCompany, unsaveTourCompany, getSavedGuideIds, saveGuide, unsaveGuide } from '../lib/supabase/saved'
+import { useAuth } from '../context/AuthContext'
+import HeartButton from '../components/HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
 
-function TourCompanyList({ tours }) {
+function TourCompanyList({ tours, savedIds, onToggleSave }) {
   if (!tours?.length) return null
   return (
     <>
@@ -17,14 +21,17 @@ function TourCompanyList({ tours }) {
         <div key={tour.id} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <h3 style={{ fontWeight: 600, color: '#111827', margin: 0, fontSize: '15px' }}>{tour.name}</h3>
-            <a
-              href={tour.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '16px' }}
-            >
-              Visit site
-            </a>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px', flexShrink: 0 }}>
+              {onToggleSave && <HeartButton saved={savedIds?.has(tour.id)} onClick={() => onToggleSave(tour.id)} />}
+              <a
+                href={tour.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap' }}
+              >
+                Visit site
+              </a>
+            </div>
           </div>
           <p style={{ fontSize: '15px', color: '#4b5563', margin: '4px 0 0' }}>{tour.description}</p>
         </div>
@@ -51,7 +58,7 @@ function groupBodyIntoSections(body) {
   return sections
 }
 
-function renderBodyBlock(block, key, { highlightedId, setHighlightedId }) {
+function renderBodyBlock(block, key, { highlightedId, setHighlightedId, savedHotelIds, onToggleSaveHotel, savedTourCompanyIds, onToggleSaveTourCompany }) {
   if (block.type === 'text') {
     return (
       <div key={key} style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px', maxWidth: '680px' }}>
@@ -68,6 +75,8 @@ function renderBodyBlock(block, key, { highlightedId, setHighlightedId }) {
             hotel={hotel}
             highlighted={highlightedId === hotel.id}
             onHighlight={setHighlightedId}
+            saved={savedHotelIds?.has(hotel.id)}
+            onToggleSave={onToggleSaveHotel}
           />
         ))}
       </div>
@@ -79,7 +88,7 @@ function renderBodyBlock(block, key, { highlightedId, setHighlightedId }) {
         <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
           {block.title || 'Suggested Tours'}
         </h2>
-        <TourCompanyList tours={block.tours} />
+        <TourCompanyList tours={block.tours} savedIds={savedTourCompanyIds} onToggleSave={onToggleSaveTourCompany} />
       </div>
     )
   }
@@ -99,10 +108,96 @@ export default function ArticlePage() {
   const [tripTemplate, setTripTemplate] = useState(null)
   const planScrollRef = useRef(null)
   const isMobile = useIsMobile()
+  const { user, isLoggedIn } = useAuth()
+  const [savedHotelIds, setSavedHotelIds] = useState(new Set())
+  const [savedTourCompanyIds, setSavedTourCompanyIds] = useState(new Set())
+  const [savedGuideIds, setSavedGuideIds] = useState(new Set())
 
   useEffect(() => {
     if (itinerary) planScrollRef.current?.scrollTo({ top: 0 })
   }, [itinerary])
+
+  useEffect(() => {
+    if (!user) {
+      setSavedHotelIds(new Set())
+      setSavedTourCompanyIds(new Set())
+      setSavedGuideIds(new Set())
+      return
+    }
+    let cancelled = false
+    Promise.all([getSavedHotelIds(user.id), getSavedTourCompanyIds(user.id), getSavedGuideIds(user.id)])
+      .then(([hotelIds, tourIds, guideIds]) => {
+        if (cancelled) return
+        setSavedHotelIds(new Set(hotelIds))
+        setSavedTourCompanyIds(new Set(tourIds))
+        setSavedGuideIds(new Set(guideIds))
+      })
+      .catch(err => console.error('Failed to load saved items:', err))
+    return () => { cancelled = true }
+  }, [user])
+
+  async function toggleSaveGuide() {
+    if (!user || !article) return
+    const isSaved = savedGuideIds.has(article.id)
+    setSavedGuideIds(current => {
+      const next = new Set(current)
+      isSaved ? next.delete(article.id) : next.add(article.id)
+      return next
+    })
+    try {
+      if (isSaved) await unsaveGuide(user.id, article.id)
+      else await saveGuide(user.id, article.id)
+    } catch (err) {
+      console.error('Failed to save guide:', err)
+      setSavedGuideIds(current => {
+        const next = new Set(current)
+        isSaved ? next.add(article.id) : next.delete(article.id)
+        return next
+      })
+    }
+  }
+
+  async function toggleSaveHotel(hotelId) {
+    if (!user) return
+    const isSaved = savedHotelIds.has(hotelId)
+    setSavedHotelIds(current => {
+      const next = new Set(current)
+      isSaved ? next.delete(hotelId) : next.add(hotelId)
+      return next
+    })
+    try {
+      if (isSaved) await unsaveHotel(user.id, hotelId)
+      else await saveHotel(user.id, hotelId)
+    } catch (err) {
+      console.error('Failed to save hotel:', err)
+      setSavedHotelIds(current => {
+        const next = new Set(current)
+        isSaved ? next.add(hotelId) : next.delete(hotelId)
+        return next
+      })
+    }
+  }
+
+  async function toggleSaveTourCompany(tourCompanyId) {
+    if (!user) return
+    const isSaved = savedTourCompanyIds.has(tourCompanyId)
+    setSavedTourCompanyIds(current => {
+      const next = new Set(current)
+      isSaved ? next.delete(tourCompanyId) : next.add(tourCompanyId)
+      return next
+    })
+    try {
+      if (isSaved) await unsaveTourCompany(user.id, tourCompanyId)
+      else await saveTourCompany(user.id, tourCompanyId)
+    } catch (err) {
+      console.error('Failed to save tour company:', err)
+      setSavedTourCompanyIds(current => {
+        const next = new Set(current)
+        isSaved ? next.add(tourCompanyId) : next.delete(tourCompanyId)
+        return next
+      })
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -227,7 +322,7 @@ export default function ArticlePage() {
         </div>
       ) : (
         <div style={{
-          width: '200px',
+          width: '260px',
           flexShrink: 0,
           backgroundColor: 'white',
           borderRight: '1px solid #f3f4f6',
@@ -251,41 +346,52 @@ export default function ArticlePage() {
 
           <div style={{ height: '1px', backgroundColor: '#f3f4f6', margin: '0 20px 16px' }} />
 
-          <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', padding: '0 20px', marginBottom: '8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Destinations
-          </p>
-
-          {destinations.map(d => {
-            const isActive = d.slug === currentDestSlug
-            return (
-              <div
-                key={d.id}
-                onClick={() => d.available && navigate('/')}
-                style={{
-                  padding: '8px 20px',
-                  fontSize: '15px',
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
-                  cursor: d.available ? 'pointer' : 'default',
-                  backgroundColor: isActive ? '#f0faf6' : 'transparent',
-                  borderLeft: isActive ? '3px solid #0F2E1D' : '3px solid transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                {d.name}
-                {!d.available && (
-                  <span style={{ fontSize: '10px', color: '#d1d5db' }}>soon</span>
-                )}
+          {isLoggedIn ? (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 16px' }}>
+              <AccountNavLinks />
+              <div style={{ marginTop: 'auto' }}>
+                <LogoutButton />
               </div>
-            )
-          })}
+            </div>
+          ) : (
+            <>
+              <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', padding: '0 20px', marginBottom: '8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                Destinations
+              </p>
 
-          <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid #f3f4f6' }}>
-            <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
-            <p style={{ fontSize: '15px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
-          </div>
+              {destinations.map(d => {
+                const isActive = d.slug === currentDestSlug
+                return (
+                  <div
+                    key={d.id}
+                    onClick={() => d.available && navigate('/')}
+                    style={{
+                      padding: '8px 20px',
+                      fontSize: '15px',
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? '#0F2E1D' : d.available ? '#374151' : '#9ca3af',
+                      cursor: d.available ? 'pointer' : 'default',
+                      backgroundColor: isActive ? '#f0faf6' : 'transparent',
+                      borderLeft: isActive ? '3px solid #0F2E1D' : '3px solid transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    {d.name}
+                    {!d.available && (
+                      <span style={{ fontSize: '10px', color: '#d1d5db' }}>soon</span>
+                    )}
+                  </div>
+                )
+              })}
+
+              <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid #f3f4f6' }}>
+                <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '8px', cursor: 'pointer' }}>About</p>
+                <p style={{ fontSize: '15px', color: '#6b7280', cursor: 'pointer' }}>Contact</p>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -303,6 +409,13 @@ export default function ArticlePage() {
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
+              {isLoggedIn && (
+                <HeartButton
+                  saved={savedGuideIds.has(article.id)}
+                  onClick={toggleSaveGuide}
+                  style={{ position: 'absolute', top: isMobile ? '16px' : '24px', right: isMobile ? '16px' : '24px' }}
+                />
+              )}
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? '20px' : '32px' }}>
                 <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
                   {article.title}
@@ -333,7 +446,11 @@ export default function ArticlePage() {
                   <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
                     Suggested Tours
                   </h2>
-                  <TourCompanyList tours={article.tourCompanies} />
+                  <TourCompanyList
+                    tours={article.tourCompanies}
+                    savedIds={savedTourCompanyIds}
+                    onToggleSave={isLoggedIn ? toggleSaveTourCompany : undefined}
+                  />
                 </div>
               )}
 
@@ -347,11 +464,19 @@ export default function ArticlePage() {
                       </div>
                     }
                   >
-                    {section.blocks.map((block, j) => renderBodyBlock(block, j, { highlightedId, setHighlightedId }))}
+                    {section.blocks.map((block, j) => renderBodyBlock(block, j, {
+                      highlightedId, setHighlightedId,
+                      savedHotelIds, onToggleSaveHotel: isLoggedIn ? toggleSaveHotel : undefined,
+                      savedTourCompanyIds, onToggleSaveTourCompany: isLoggedIn ? toggleSaveTourCompany : undefined
+                    }))}
                   </CollapsibleSection>
                 ) : (
                   <div key={i}>
-                    {section.blocks.map((block, j) => renderBodyBlock(block, j, { highlightedId, setHighlightedId }))}
+                    {section.blocks.map((block, j) => renderBodyBlock(block, j, {
+                      highlightedId, setHighlightedId,
+                      savedHotelIds, onToggleSaveHotel: isLoggedIn ? toggleSaveHotel : undefined,
+                      savedTourCompanyIds, onToggleSaveTourCompany: isLoggedIn ? toggleSaveTourCompany : undefined
+                    }))}
                   </div>
                 )
               )}
@@ -382,7 +507,7 @@ export default function ArticlePage() {
                 >
                   ← Back to form
                 </button>
-                <Itinerary data={itinerary} highlightedId={highlightedId} onHighlight={setHighlightedId} />
+                <Itinerary data={itinerary} highlightedId={highlightedId} onHighlight={setHighlightedId} contentPageId={article.id} />
               </>
             )}
             <div style={{ height: '60px' }} />

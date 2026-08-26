@@ -79,7 +79,7 @@ export default function Home() {
                   Curated Itineraries
                 </h2>
                 <p style={{ fontSize: '15px', color: '#4b5563', margin: 0 }}>
-                  Pick a guide to choose hotels, tours and build a trip.
+                  Pick an itinerary to choose hotels, tours and build a trip.
                 </p>
               </div>
               <button

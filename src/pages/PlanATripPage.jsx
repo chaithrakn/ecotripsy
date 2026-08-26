@@ -33,7 +33,7 @@ export default function PlanATripPage() {
         Curated Itineraries
       </h1>
       <p style={{ fontSize: '15px', color: '#4b5563', margin: '0 0 24px' }}>
-        Pick a guide to choose hotels, tours and build a trip.
+        Pick an itinerary to choose hotels, tours and build a trip.
       </p>
 
       {pillarFilter && (

@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import CollapsibleSection from './CollapsibleSection'
+import { useAuth } from '../context/AuthContext'
+import { saveItinerary } from '../lib/supabase/saved'
 
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -164,22 +167,63 @@ function DayCard({ day, highlightedId, onHighlight }) {
   )
 }
 
-export default function Itinerary({ data, highlightedId, onHighlight }) {
+export default function Itinerary({ data, highlightedId, onHighlight, contentPageId, hideSaveButton }) {
+  const { user, isLoggedIn } = useAuth()
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState(null)
+
   if (!data || !data.days) return null
 
   const groups = groupDaysByRegion(data.days)
   const hasMultipleRegions = groups.length > 1
   const totalDays = data.days.length
+  const regionNames = [...new Set(groups.map(g => g.regionName).filter(name => name !== 'Itinerary'))]
+  const defaultTitle = regionNames.length > 0
+    ? `${regionNames.join(' + ')} — ${totalDays} day${totalDays === 1 ? '' : 's'}`
+    : `${totalDays}-day itinerary`
 
   function scrollToRegion(regionName) {
     document.getElementById(`itinerary-${slugify(regionName)}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  async function handleSaveItinerary() {
+    if (!user) return
+    setSaving(true)
+    setSaveError(null)
+    try {
+      await saveItinerary(user.id, { contentPageId, title: defaultTitle, body: data })
+      setSaved(true)
+    } catch (err) {
+      console.error('Failed to save itinerary:', err)
+      setSaveError(err.message || 'Could not save itinerary.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div style={{ marginTop: '32px' }}>
-      <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
-        Your Itinerary
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>
+          Your Itinerary
+        </h2>
+        {isLoggedIn && !hideSaveButton && (
+          <button
+            type="button"
+            onClick={handleSaveItinerary}
+            disabled={saving || saved}
+            style={{
+              padding: '8px 16px', borderRadius: '999px', border: 'none', fontSize: '14px', fontWeight: 600,
+              backgroundColor: saved ? '#f0faf6' : '#0F2E1D', color: saved ? '#0F2E1D' : 'white',
+              cursor: saving || saved ? 'default' : 'pointer'
+            }}
+          >
+            {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save this itinerary'}
+          </button>
+        )}
+      </div>
+      {saveError && <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px' }}>{saveError}</p>}
 
       {hasMultipleRegions && (
         <p style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '24px' }}>
