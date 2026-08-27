@@ -16,7 +16,7 @@ function newBlockId() {
 
 function emptyBlock(type) {
   if (type === 'text') return { _id: newBlockId(), type: 'text', content: '' }
-  if (type === 'hotel_list') return { _id: newBlockId(), type: 'hotel_list', region_id: '', price_range: '', certified: '', pillars: [], sort_by: '' }
+  if (type === 'hotel_list') return { _id: newBlockId(), type: 'hotel_list', region_id: '', certified: '', pillars: [], sort_by: '' }
   return { _id: newBlockId(), type: 'tour_list', region_id: '', title: '' }
 }
 
@@ -136,7 +136,6 @@ export default function ContentPageForm() {
         if (block.type === 'hotel_list') {
           const cleaned = { type: 'hotel_list' }
           if (block.region_id) cleaned.region_id = block.region_id
-          if (block.price_range) cleaned.price_range = block.price_range
           if (block.certified !== '') cleaned.certified = block.certified === 'true'
           if (block.pillars?.length > 0) cleaned.pillars = block.pillars
           if (block.sort_by) cleaned.sort_by = block.sort_by
@@ -314,15 +313,6 @@ export default function ContentPageForm() {
               </div>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={fieldLabelStyle}>Price range</label>
-                  <select value={block.price_range} onChange={e => updateBlock(index, { price_range: e.target.value })} style={inputStyle}>
-                    <option value="">Any</option>
-                    <option value="budget">Budget</option>
-                    <option value="mid">Mid</option>
-                    <option value="luxury">Luxury</option>
-                  </select>
-                </div>
-                <div style={{ flex: 1 }}>
                   <label style={fieldLabelStyle}>Certified</label>
                   <select value={block.certified} onChange={e => updateBlock(index, { certified: e.target.value })} style={inputStyle}>
                     <option value="">Any</option>
@@ -334,7 +324,6 @@ export default function ContentPageForm() {
                   <label style={fieldLabelStyle}>Sort by</label>
                   <select value={block.sort_by} onChange={e => updateBlock(index, { sort_by: e.target.value })} style={inputStyle}>
                     <option value="">Default</option>
-                    <option value="price_range">Price range</option>
                     <option value="certified">Certified first</option>
                     <option value="name">Name</option>
                   </select>

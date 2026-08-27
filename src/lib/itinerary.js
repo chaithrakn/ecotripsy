@@ -68,6 +68,36 @@ export async function buildItinerary({ regionId, regionName, days, hotel }) {
   return { days: resultDays }
 }
 
+export async function appendExperienceDays(itinerary, experiences) {
+  const days = [...itinerary.days]
+  let dayNumber = days.length > 0 ? days[days.length - 1].day + 1 : 1
+
+  const tourRegionIds = [...new Set(experiences.filter(e => e.suggest_tour).map(e => e.region_id))]
+  const tourCompanyLists = await Promise.all(tourRegionIds.map(getTourCompaniesByRegion))
+  const tourCompaniesByRegion = Object.fromEntries(tourRegionIds.map((id, i) => [id, tourCompanyLists[i]]))
+
+  for (const experience of experiences) {
+    const dayStart = dayNumber
+    const dayEnd = dayNumber + experience.days - 1
+    days.push({
+      day: dayStart,
+      dayEnd: experience.days > 1 ? dayEnd : undefined,
+      title: null,
+      arrivalNote: null,
+      activities: [],
+      departNote: null,
+      tourSuggestions: experience.suggest_tour ? (tourCompaniesByRegion[experience.region_id] || []) : [],
+      note: experience.description || null,
+      regionId: null,
+      regionName: experience.title,
+      hotel: null
+    })
+    dayNumber = dayEnd + 1
+  }
+
+  return { days }
+}
+
 export async function buildMultiRegionItinerary({ selections }) {
   const allDays = []
   let dayOffset = 0

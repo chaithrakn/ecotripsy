@@ -92,7 +92,7 @@ export default function ItineraryTemplateForm() {
     setSaving(true)
     setError(null)
     try {
-      const body = days.map((d, i) => ({ ...d, day: i + 1 }))
+      const body = days.map((d, i) => ({ ...d, day: i + 1, attraction_ids: (d.attraction_ids || []).filter(Boolean) }))
       const payload = { region_id: regionId, days: body.length, body }
       if (isEdit) {
         await updateRow('itinerary_templates', id, payload)

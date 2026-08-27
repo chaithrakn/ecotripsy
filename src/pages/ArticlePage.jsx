@@ -284,7 +284,7 @@ export default function ArticlePage() {
             return [
               ...allActivities.map(a => [a.id, { id: a.id, name: a.name, description: a.description, lat: a.lat, lng: a.lng, kind: 'attraction' }]),
               ...allActivities.flatMap(a => alternativePlaces(a.id, a.alternatives)).map(p => [p.id, p]),
-              [day.hotel.id, { id: day.hotel.id, name: day.hotel.name, description: day.hotel.description, url: day.hotel.url, image: day.hotel.image, lat: day.hotel.lat, lng: day.hotel.lng, kind: 'hotel' }]
+              ...(day.hotel ? [[day.hotel.id, { id: day.hotel.id, name: day.hotel.name, description: day.hotel.description, url: day.hotel.url, image: day.hotel.image, lat: day.hotel.lat, lng: day.hotel.lng, kind: 'hotel' }]] : [])
             ]
           })
         )
@@ -390,10 +390,10 @@ export default function ArticlePage() {
                 style={{ position: 'absolute', top: isMobile ? '16px' : '24px', right: isMobile ? '16px' : '24px' }}
               />
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? '20px' : '32px' }}>
-                <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px' }}>
+                <h1 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: 600, color: 'white', margin: '0 0 6px', textShadow: '0 2px 10px rgba(0,0,0,0.55)' }}>
                   {article.title}
                 </h1>
-                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', margin: '0 0 20px' }}>
+                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.85)', margin: '0 0 20px', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
                   {hotels.length} curated properties
                 </p>
                 <button

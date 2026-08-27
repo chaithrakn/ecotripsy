@@ -20,7 +20,11 @@ export default function AdminEntityList({ config }) {
 
   useEffect(() => { load() }, [config.table])
 
-  const displayField = config.fields.find(f => f.name === 'name') ? 'name' : config.fields[0].name
+  const displayField = config.fields.find(f => f.name === 'name')
+    ? 'name'
+    : config.fields.find(f => f.name === 'title')
+      ? 'title'
+      : config.fields.find(f => !f.virtual)?.name
 
   return (
     <div>

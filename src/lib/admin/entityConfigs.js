@@ -63,15 +63,6 @@ export const HOTEL_CONFIG = {
     { name: 'description', type: 'textarea' },
     { name: 'url', type: 'text', label: 'Website URL' },
     { name: 'image', type: 'text', label: 'Image path/URL' },
-    {
-      name: 'price_range',
-      type: 'select',
-      options: [
-        { value: 'budget', label: 'Budget' },
-        { value: 'mid', label: 'Mid' },
-        { value: 'luxury', label: 'Luxury' }
-      ]
-    },
     { name: 'price_min', type: 'number', label: 'Price min' },
     { name: 'price_max', type: 'number', label: 'Price max' },
     { name: 'pillars', type: 'multiselect', options: PILLARS.map(p => p.key) },
@@ -102,6 +93,20 @@ export const TOUR_COMPANY_CONFIG = {
   ]
 }
 
+export const EXPERIENCE_CONFIG = {
+  table: 'experiences',
+  label: 'Experiences',
+  fields: [
+    { name: '_destination_id', type: 'select', label: 'Destination', loadOptions: loadDestinationOptions, virtual: true, required: true },
+    { name: 'region_id', type: 'select', label: 'Region', loadOptions: loadRegionOptionsForDestination, dependsOn: '_destination_id', required: true },
+    { name: 'title', type: 'text', required: true },
+    { name: 'description', type: 'textarea' },
+    { name: 'days', type: 'number', label: 'Days', required: true },
+    { name: 'suggest_tour', type: 'boolean', label: 'Suggest tour companies for this region', default: false }
+  ],
+  hydrateVirtual: async row => ({ _destination_id: await getDestinationIdForRegion(row.region_id) })
+}
+
 export const JOURNAL_CONFIG = {
   table: 'journal_entries',
   label: 'Field Notes',
@@ -115,4 +120,4 @@ export const JOURNAL_CONFIG = {
   ]
 }
 
-export const ENTITIES = [DESTINATION_CONFIG, REGION_CONFIG, HOTEL_CONFIG, TOUR_COMPANY_CONFIG, JOURNAL_CONFIG]
+export const ENTITIES = [DESTINATION_CONFIG, REGION_CONFIG, HOTEL_CONFIG, TOUR_COMPANY_CONFIG, EXPERIENCE_CONFIG, JOURNAL_CONFIG]

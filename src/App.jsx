@@ -12,6 +12,8 @@ import SignupPage from './pages/SignupPage'
 import SavedItineraryPage from './pages/SavedItineraryPage'
 import SavedPage from './pages/SavedPage'
 import TripsPage from './pages/TripsPage'
+import AboutPage from './pages/AboutPage'
+import PartnerPage from './pages/PartnerPage'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminHome from './pages/admin/AdminHome'
 import AdminEntityList from './components/admin/AdminEntityList'
@@ -37,6 +39,8 @@ function App() {
         <Route path="/saved-itineraries/:id" element={<Layout><SavedItineraryPage /></Layout>} />
         <Route path="/saved" element={<Layout><SavedPage /></Layout>} />
         <Route path="/trips" element={<Layout><TripsPage /></Layout>} />
+        <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+        <Route path="/partner" element={<Layout><PartnerPage /></Layout>} />
         <Route path="/articles/:slug" element={<ArticlePage />} />
 
         <Route path="/admin" element={<AdminLayout />}>

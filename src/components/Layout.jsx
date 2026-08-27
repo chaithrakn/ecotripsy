@@ -174,7 +174,8 @@ export default function Layout({ children }) {
               <span onClick={() => navigate('/plan-a-trip')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Explore</span>
               <PlacesDropdown />
               <span onClick={() => navigate('/journal')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Field Notes</span>
-              <span style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>About</span>
+              <span onClick={() => navigate('/about')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>About</span>
+              <span onClick={() => navigate('/partner')} style={{ fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Partner</span>
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifySelf: 'end' }}>
@@ -203,7 +204,7 @@ export default function Layout({ children }) {
 
       {/* Footer */}
       <footer style={{ backgroundColor: '#f3f2ee', color: '#111827', padding: isMobile ? '40px 20px 24px' : '56px 40px 32px' }}>
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: isMobile ? '32px' : '48px', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: isMobile ? '32px' : '48px', flexWrap: 'wrap', maxWidth: '1280px', margin: '0 auto' }}>
           <div style={{ maxWidth: isMobile ? 'none' : '340px' }}>
             <img src="/logo2.png" alt="Greenlugg" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
             <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6 }}>
@@ -256,7 +257,7 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '32px auto 0', paddingTop: '20px', borderTop: '1px solid #e5e4e0' }}>
+        <div style={{ maxWidth: '1280px', margin: '32px auto 0', paddingTop: '20px', borderTop: '1px solid #e5e4e0' }}>
           <p style={{ fontSize: '12px', color: '#9ca3af' }}>© 2026 greenlugg. All rights reserved.</p>
         </div>
       </footer>

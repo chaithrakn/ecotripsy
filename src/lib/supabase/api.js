@@ -54,8 +54,9 @@ export async function getDefaultDaysForRegion(regionId) {
 }
 
 export async function getAttractionsByIds(ids) {
-  if (!ids || ids.length === 0) return []
-  const { data, error } = await supabase.from('attractions').select('*').in('id', ids)
+  const cleanIds = (ids || []).filter(Boolean)
+  if (cleanIds.length === 0) return []
+  const { data, error } = await supabase.from('attractions').select('*').in('id', cleanIds)
   if (error) throw error
   return data
 }
@@ -75,6 +76,13 @@ export async function getAttractionsByRegion(regionId) {
 export async function getAttractionsByRegions(regionIds) {
   if (!regionIds || regionIds.length === 0) return []
   const { data, error } = await supabase.from('attractions').select('*').in('region_id', regionIds)
+  if (error) throw error
+  return data
+}
+
+export async function getExperiencesByRegions(regionIds) {
+  if (!regionIds || regionIds.length === 0) return []
+  const { data, error } = await supabase.from('experiences').select('*').in('region_id', regionIds)
   if (error) throw error
   return data
 }
@@ -138,12 +146,7 @@ export async function getJournalEntryBySlug(slug) {
   return data
 }
 
-const PRICE_RANGE_ORDER = { budget: 0, mid: 1, luxury: 2 }
-
 function sortHotels(hotels, sortBy) {
-  if (sortBy === 'price_range') {
-    return [...hotels].sort((a, b) => (PRICE_RANGE_ORDER[a.price_range] ?? 99) - (PRICE_RANGE_ORDER[b.price_range] ?? 99))
-  }
   if (sortBy === 'certified') {
     return [...hotels].sort((a, b) => (b.certified === true) - (a.certified === true))
   }
@@ -168,9 +171,8 @@ async function resolveHotelListBlock(regionIds, block) {
   if (scopedRegionIds.length === 0) return { ...block, hotels: [] }
 
   let query = supabase.from('hotels').select('*, regions(name)').in('region_id', scopedRegionIds)
-  if (block.price_range) query = query.eq('price_range', block.price_range)
   if (block.certified !== undefined) query = query.eq('certified', block.certified)
-  if (block.pillars?.length > 0) query = query.contains('pillars', block.pillars)
+  if (block.pillars?.length > 0) query = query.overlaps('pillars', block.pillars)
 
   const { data, error } = await query
   if (error) throw error

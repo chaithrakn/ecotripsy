@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getSavedGuideIds, saveGuide, unsaveGuide } from '../lib/supabase/saved'
+import { getExperiencesByRegions } from '../lib/supabase/api'
 import { setPendingSave } from '../lib/pendingSave'
 import HeartButton from './HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
 
-function TripCard({ article, onClick, saved, onToggleSave }) {
+function TripCard({ article, onClick, saved, onToggleSave, maxExtraDays }) {
   const [hovered, setHovered] = useState(false)
   const placeName = article.destinations?.name ?? article.regions?.name ?? article.title
   const heading = article.trip_days
-    ? `${placeName} — ${article.trip_days} day${article.trip_days === 1 ? '' : 's'}`
+    ? maxExtraDays > 0
+      ? `${placeName} — ${article.trip_days}-${article.trip_days + maxExtraDays} days`
+      : `${placeName} — ${article.trip_days} day${article.trip_days === 1 ? '' : 's'}`
     : placeName
 
   return (
@@ -92,6 +95,7 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
   const isMobile = useIsMobile()
   const { user } = useAuth()
   const [savedIds, setSavedIds] = useState(new Set())
+  const [experienceDaysByRegion, setExperienceDaysByRegion] = useState({})
 
   useEffect(() => {
     if (!user) {
@@ -104,6 +108,26 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
       .catch(err => console.error('Failed to load saved guides:', err))
     return () => { cancelled = true }
   }, [user])
+
+  const regionIds = [...new Set(articles.map(a => a.region_id).filter(Boolean))]
+  const regionIdsKey = regionIds.slice().sort().join(',')
+
+  useEffect(() => {
+    let cancelled = false
+    if (regionIds.length === 0) { setExperienceDaysByRegion({}); return }
+    getExperiencesByRegions(regionIds)
+      .then(data => {
+        if (cancelled) return
+        const sums = {}
+        for (const experience of data) {
+          sums[experience.region_id] = (sums[experience.region_id] || 0) + experience.days
+        }
+        setExperienceDaysByRegion(sums)
+      })
+      .catch(err => console.error('Failed to load experiences:', err))
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [regionIdsKey])
 
   async function toggleSave(contentPageId) {
     if (!user) {
@@ -142,6 +166,7 @@ export default function ArticleGrid({ articles, loading, emptyMessage }) {
           onClick={() => navigate(`/articles/${article.slug}`)}
           saved={savedIds.has(article.id)}
           onToggleSave={toggleSave}
+          maxExtraDays={experienceDaysByRegion[article.region_id] || 0}
         />
       ))}
     </div>

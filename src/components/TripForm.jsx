@@ -1,12 +1,15 @@
-import { useState } from 'react'
-import { buildItinerary, buildTripItinerary, buildMultiRegionItinerary } from '../lib/itinerary'
-import { getDefaultDaysForRegion } from '../lib/supabase/api'
+import { useState, useEffect } from 'react'
+import { buildItinerary, buildTripItinerary, buildMultiRegionItinerary, appendExperienceDays } from '../lib/itinerary'
+import { getDefaultDaysForRegion, getExperiencesByRegions } from '../lib/supabase/api'
 
 export default function TripForm({ hotels, tripTemplate, onItinerary }) {
   const [selectedHotel, setSelectedHotel] = useState(hotels[0]?.id || '')
   const [selectedLegHotels, setSelectedLegHotels] = useState({})
   const [selectedRegionHotels, setSelectedRegionHotels] = useState({})
   const [selectedRegions, setSelectedRegions] = useState([])
+  const [experiences, setExperiences] = useState([])
+  const [selectedExperienceIds, setSelectedExperienceIds] = useState([])
+  const [baseDays, setBaseDays] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -23,7 +26,11 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
     id: key,
     name: regionHotels[0].regions?.name || key
   }))
-  const combineMode = selectedRegions.length >= 2
+  // No explicit region filter means "all regions" — so with multiple regions available,
+  // default to letting the traveler pick one hotel per region rather than one hotel total.
+  const effectiveRegions = selectedRegions.length > 0 ? selectedRegions : availableRegions.map(r => r.id)
+  const combineMode = effectiveRegions.length >= 2
+  const effectiveRegionsKey = effectiveRegions.slice().sort().join(',')
 
   function toggleRegion(regionId) {
     setSelectedRegions(current =>
@@ -36,11 +43,61 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
     : regionGroups.filter(([key]) => selectedRegions.includes(key))
   const showRegionHeadings = visibleGroups.length > 1
 
+  const activeRegionIds = tripTemplate
+    ? tripTemplate.legs.map(leg => leg.region_id)
+    : combineMode
+      ? effectiveRegions
+      : (hotels.find(h => h.id === selectedHotel)?.region_id ? [hotels.find(h => h.id === selectedHotel).region_id] : [])
+  const activeRegionKey = activeRegionIds.slice().sort().join(',')
+
+  useEffect(() => {
+    let cancelled = false
+    if (activeRegionIds.length === 0) { setExperiences([]); return }
+    getExperiencesByRegions(activeRegionIds)
+      .then(data => { if (!cancelled) setExperiences(data) })
+      .catch(err => console.error('Failed to load experiences:', err))
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRegionKey])
+
+  useEffect(() => {
+    let cancelled = false
+    async function computeBaseDays() {
+      if (tripTemplate) {
+        setBaseDays(tripTemplate.body.length)
+        return
+      }
+      if (combineMode) {
+        const counts = await Promise.all(effectiveRegions.map(getDefaultDaysForRegion))
+        if (!cancelled) setBaseDays(counts.reduce((sum, d) => sum + d, 0))
+        return
+      }
+      const hotel = hotels.find(h => h.id === selectedHotel)
+      if (!hotel) { setBaseDays(null); return }
+      const days = await getDefaultDaysForRegion(hotel.region_id)
+      if (!cancelled) setBaseDays(days)
+    }
+    computeBaseDays().catch(err => console.error('Failed to compute base days:', err))
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripTemplate, combineMode, effectiveRegionsKey, selectedHotel])
+
+  function toggleExperience(id) {
+    setSelectedExperienceIds(current =>
+      current.includes(id) ? current.filter(x => x !== id) : [...current, id]
+    )
+  }
+
+  const selectedExperiences = experiences.filter(e => selectedExperienceIds.includes(e.id))
+  const selectedExtraDays = selectedExperiences.reduce((sum, e) => sum + e.days, 0)
+  const maxExtraDays = experiences.reduce((sum, e) => sum + e.days, 0)
+
   async function handleSubmit() {
     setLoading(true)
     setError(null)
 
     try {
+      let itinerary
       if (tripTemplate) {
         const orderedHotels = tripTemplate.legs.map(leg =>
           hotels.find(h => h.id === selectedLegHotels[leg.region_id])
@@ -48,32 +105,90 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
         if (orderedHotels.some(h => !h)) {
           throw new Error('Select a hotel for every leg')
         }
-        const itinerary = await buildTripItinerary({ template: tripTemplate, hotels: orderedHotels })
-        onItinerary(itinerary)
+        itinerary = await buildTripItinerary({ template: tripTemplate, hotels: orderedHotels })
       } else if (combineMode) {
         const selections = []
-        for (const regionId of selectedRegions) {
+        for (const regionId of effectiveRegions) {
           const hotel = hotels.find(h => h.id === selectedRegionHotels[regionId])
           if (!hotel) throw new Error('Select a hotel for every region')
           const days = await getDefaultDaysForRegion(regionId)
           const regionName = availableRegions.find(r => r.id === regionId)?.name
           selections.push({ regionId, regionName, hotel, days })
         }
-        const itinerary = await buildMultiRegionItinerary({ selections })
-        onItinerary(itinerary)
+        itinerary = await buildMultiRegionItinerary({ selections })
       } else {
         const hotel = hotels.find(h => h.id === selectedHotel)
         const days = await getDefaultDaysForRegion(hotel.region_id)
         const regionName = hotel.regions?.name
-        const itinerary = await buildItinerary({ regionId: hotel.region_id, regionName, days, hotel })
-        onItinerary(itinerary)
+        itinerary = await buildItinerary({ regionId: hotel.region_id, regionName, days, hotel })
       }
+      if (selectedExperiences.length > 0) {
+        itinerary = await appendExperienceDays(itinerary, selectedExperiences)
+      }
+      onItinerary(itinerary)
     } catch (err) {
       console.error('Failed to build itinerary:', err)
-      setError('Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  function ExperiencesSection() {
+    if (experiences.length === 0) return null
+    return (
+      <div style={{ marginBottom: '32px' }}>
+        <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>
+          Add experiences <span style={{ fontWeight: 400, color: '#9ca3af' }}>(optional)</span>
+        </p>
+        <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+          {baseDays != null
+            ? `Your trip can run ${baseDays}${maxExtraDays > 0 ? `–${baseDays + maxExtraDays}` : ''} days depending on what you add.`
+            : 'Pick any add-on experiences for your trip.'}
+          {selectedExtraDays > 0 && ` Currently: ${(baseDays ?? 0) + selectedExtraDays} days.`}
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {experiences.map(experience => {
+            const isSelected = selectedExperienceIds.includes(experience.id)
+            return (
+              <label
+                key={experience.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  border: `1px solid ${isSelected ? '#0F2E1D' : '#e5e7eb'}`,
+                  backgroundColor: isSelected ? '#f0faf6' : 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleExperience(experience.id)}
+                  style={{ accentColor: '#0F2E1D', marginTop: '3px' }}
+                />
+                <div>
+                  <p style={{ margin: 0, fontWeight: 500, fontSize: '15px', color: '#111827' }}>
+                    {experience.title}{' '}
+                    <span style={{ fontWeight: 400, color: '#6b7280' }}>
+                      · {experience.days} day{experience.days === 1 ? '' : 's'}
+                    </span>
+                  </p>
+                  {experience.description && (
+                    <p style={{ margin: '2px 0 0', fontSize: '13px', color: '#6b7280' }}>
+                      {experience.description}
+                    </p>
+                  )}
+                </div>
+              </label>
+            )
+          })}
+        </div>
+      </div>
+    )
   }
 
   if (tripTemplate) {
@@ -125,6 +240,8 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
           </div>
         ))}
 
+        <ExperiencesSection />
+
         <button
           onClick={handleSubmit}
           disabled={loading || !canSubmit}
@@ -151,7 +268,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
   }
 
   const canSubmit = combineMode
-    ? selectedRegions.every(regionId => selectedRegionHotels[regionId])
+    ? effectiveRegions.every(regionId => selectedRegionHotels[regionId])
     : Boolean(selectedHotel)
 
   return (
@@ -169,7 +286,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
       {hasMultipleRegions && (
         <div style={{ marginBottom: '24px' }}>
           <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
-            What regions will you travel to? <span style={{ fontWeight: 400, color: '#9ca3af' }}>(optional)</span>
+            What regions will you travel to? <span style={{ fontWeight: 400, color: '#9ca3af' }}>(optional — leave blank to include all)</span>
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {availableRegions.map(region => (
@@ -201,7 +318,7 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
           Where will you stay?
         </p>
         {(combineMode
-          ? regionGroups.filter(([key]) => selectedRegions.includes(key))
+          ? regionGroups.filter(([key]) => effectiveRegions.includes(key))
           : visibleGroups
         ).map(([regionKey, regionHotels]) => (
           <div key={regionKey} style={{ marginBottom: '20px' }}>
@@ -251,6 +368,8 @@ export default function TripForm({ hotels, tripTemplate, onItinerary }) {
           </div>
         ))}
       </div>
+
+      <ExperiencesSection />
 
       {/* Submit */}
       <button

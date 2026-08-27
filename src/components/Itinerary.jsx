@@ -1,10 +1,20 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import CollapsibleSection from './CollapsibleSection'
 import { useAuth } from '../context/AuthContext'
 import { saveItinerary } from '../lib/supabase/saved'
+import { setPendingSave } from '../lib/pendingSave'
 
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+function daySpan(day) {
+  return (day.dayEnd ?? day.day) - day.day + 1
+}
+
+function groupDaySpan(group) {
+  return group.days.reduce((sum, day) => sum + daySpan(day), 0)
 }
 
 function groupDaysByRegion(days) {
@@ -25,11 +35,13 @@ function DayCard({ day, highlightedId, onHighlight }) {
   return (
     <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #f3f4f6' }}>
       <p style={{ fontSize: '13px', fontWeight: 600, color: '#0F2E1D', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
-        Day {day.day}
+        Day {day.day}{day.dayEnd && day.dayEnd !== day.day ? `-${day.dayEnd}` : ''}
       </p>
-      <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 8px' }}>
-        {day.title}
-      </h3>
+      {day.title && (
+        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 8px' }}>
+          {day.title}
+        </h3>
+      )}
       {day.arrivalNote && (
         <p style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.7, margin: '0 0 8px' }}>
           {day.arrivalNote}
@@ -123,52 +135,56 @@ function DayCard({ day, highlightedId, onHighlight }) {
           ))}
         </p>
       )}
-      <div
-        onMouseEnter={() => onHighlight?.(day.hotel.id)}
-        onMouseLeave={() => onHighlight?.(null)}
-        onClick={() => onHighlight?.(day.hotel.id)}
-        style={{
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center',
-          padding: '10px',
-          borderRadius: '10px',
-          cursor: 'pointer',
-          backgroundColor: highlightedId === day.hotel.id ? '#dbeee8' : '#eef7f4'
-        }}
-      >
-        {day.hotel.image && (
-          <img
-            src={day.hotel.image}
-            alt={day.hotel.name}
-            style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
-          />
-        )}
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0 }}>
-            🏨 {day.hotel.name}
-          </p>
-          {day.hotel.description && (
-            <p style={{ fontSize: '15px', color: '#6b7280', margin: '2px 0 0' }}>
-              {day.hotel.description}
-            </p>
-          )}
-        </div>
-        <a
-          href={day.hotel.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}
+      {day.hotel && (
+        <div
+          onMouseEnter={() => onHighlight?.(day.hotel.id)}
+          onMouseLeave={() => onHighlight?.(null)}
+          onClick={() => onHighlight?.(day.hotel.id)}
+          style={{
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            padding: '10px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            backgroundColor: highlightedId === day.hotel.id ? '#dbeee8' : '#eef7f4'
+          }}
         >
-          Book Now
-        </a>
-      </div>
+          {day.hotel.image && (
+            <img
+              src={day.hotel.image}
+              alt={day.hotel.name}
+              style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
+            />
+          )}
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0 }}>
+              🏨 {day.hotel.name}
+            </p>
+            {day.hotel.description && (
+              <p style={{ fontSize: '15px', color: '#6b7280', margin: '2px 0 0' }}>
+                {day.hotel.description}
+              </p>
+            )}
+          </div>
+          <a
+            href={day.hotel.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}
+          >
+            Book Now
+          </a>
+        </div>
+      )}
     </div>
   )
 }
 
 export default function Itinerary({ data, highlightedId, onHighlight, contentPageId, hideSaveButton }) {
-  const { user, isLoggedIn } = useAuth()
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState(null)
@@ -177,7 +193,7 @@ export default function Itinerary({ data, highlightedId, onHighlight, contentPag
 
   const groups = groupDaysByRegion(data.days)
   const hasMultipleRegions = groups.length > 1
-  const totalDays = data.days.length
+  const totalDays = data.days.reduce((sum, day) => sum + daySpan(day), 0)
   const regionNames = [...new Set(groups.map(g => g.regionName).filter(name => name !== 'Itinerary'))]
   const defaultTitle = regionNames.length > 0
     ? `${regionNames.join(' + ')} — ${totalDays} day${totalDays === 1 ? '' : 's'}`
@@ -188,7 +204,11 @@ export default function Itinerary({ data, highlightedId, onHighlight, contentPag
   }
 
   async function handleSaveItinerary() {
-    if (!user) return
+    if (!user) {
+      setPendingSave({ type: 'itinerary', contentPageId, title: defaultTitle, body: data, returnTo: location.pathname })
+      navigate('/login')
+      return
+    }
     setSaving(true)
     setSaveError(null)
     try {
@@ -202,26 +222,31 @@ export default function Itinerary({ data, highlightedId, onHighlight, contentPag
     }
   }
 
+  function SaveButton() {
+    if (hideSaveButton) return null
+    return (
+      <button
+        type="button"
+        onClick={handleSaveItinerary}
+        disabled={saving || saved}
+        style={{
+          padding: '8px 16px', borderRadius: '999px', border: 'none', fontSize: '14px', fontWeight: 600,
+          backgroundColor: saved ? '#f0faf6' : '#0F2E1D', color: saved ? '#0F2E1D' : 'white',
+          cursor: saving || saved ? 'default' : 'pointer'
+        }}
+      >
+        {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save to My Trips'}
+      </button>
+    )
+  }
+
   return (
     <div style={{ marginTop: '32px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>
           Your Itinerary
         </h2>
-        {isLoggedIn && !hideSaveButton && (
-          <button
-            type="button"
-            onClick={handleSaveItinerary}
-            disabled={saving || saved}
-            style={{
-              padding: '8px 16px', borderRadius: '999px', border: 'none', fontSize: '14px', fontWeight: 600,
-              backgroundColor: saved ? '#f0faf6' : '#0F2E1D', color: saved ? '#0F2E1D' : 'white',
-              cursor: saving || saved ? 'default' : 'pointer'
-            }}
-          >
-            {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save this itinerary'}
-          </button>
-        )}
+        <SaveButton />
       </div>
       {saveError && <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px' }}>{saveError}</p>}
 
@@ -236,7 +261,7 @@ export default function Itinerary({ data, highlightedId, onHighlight, contentPag
               >
                 {group.regionName}
               </span>
-              {' '}– {group.days.length} day{group.days.length > 1 ? 's' : ''}
+              {' '}– {groupDaySpan(group)} day{groupDaySpan(group) > 1 ? 's' : ''}
               {i < groups.length - 1 ? ', ' : ''}
             </span>
           ))}
@@ -260,7 +285,7 @@ export default function Itinerary({ data, highlightedId, onHighlight, contentPag
               <p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>
                 {group.regionName}{' '}
                 <span style={{ fontWeight: 400, color: '#6b7280', fontSize: '15px' }}>
-                  · {group.days.length} day{group.days.length > 1 ? 's' : ''}
+                  · {groupDaySpan(group)} day{groupDaySpan(group) > 1 ? 's' : ''}
                 </span>
               </p>
             }
@@ -269,6 +294,12 @@ export default function Itinerary({ data, highlightedId, onHighlight, contentPag
           </CollapsibleSection>
         )
       })}
+
+      {!hideSaveButton && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+          <SaveButton />
+        </div>
+      )}
     </div>
   )
 }
