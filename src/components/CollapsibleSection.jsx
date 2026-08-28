@@ -15,7 +15,10 @@ export default function CollapsibleSection({ id, heading, defaultExpanded = true
   const [expanded, setExpanded] = useState(defaultExpanded)
   return (
     <div id={id} style={{ marginBottom: '24px', scrollMarginTop: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px',
+        backgroundColor: '#f0faf6', border: '1px solid #dcefe6', borderRadius: '14px', padding: '18px 22px'
+      }}>
         <div style={{ flex: 1 }}>
           {heading}
         </div>
@@ -27,7 +30,7 @@ export default function CollapsibleSection({ id, heading, defaultExpanded = true
           <ChevronIcon expanded={expanded} />
         </button>
       </div>
-      {expanded && <div style={{ marginTop: '8px' }}>{children}</div>}
+      {expanded && <div style={{ marginTop: '16px' }}>{children}</div>}
     </div>
   )
 }

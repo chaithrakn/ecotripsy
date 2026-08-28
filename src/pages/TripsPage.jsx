@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getSavedItineraries, deleteSavedItinerary } from '../lib/supabase/saved'
-import SavedCard from '../components/SavedCard'
+import EntityCard from '../components/EntityCard'
 import useIsMobile from '../hooks/useIsMobile'
 
 export default function TripsPage() {
@@ -45,14 +45,15 @@ export default function TripsPage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>
           {itineraries.map(it => (
-            <SavedCard
+            <EntityCard
               key={it.id}
               image={it.content_pages?.cover_image}
               title={it.title}
               subtitle={`Saved ${new Date(it.created_at).toLocaleDateString()}`}
               linkLabel="View itinerary"
               onOpen={() => navigate(`/saved-itineraries/${it.id}`)}
-              onRemove={() => removeItinerary(it.id)}
+              saved
+              onToggleSave={() => removeItinerary(it.id)}
             />
           ))}
         </div>

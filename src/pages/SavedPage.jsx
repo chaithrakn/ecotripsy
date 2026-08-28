@@ -6,7 +6,7 @@ import {
   getSavedTourCompaniesFull, unsaveTourCompany,
   getSavedGuidesFull, unsaveGuide
 } from '../lib/supabase/saved'
-import SavedCard from '../components/SavedCard'
+import EntityCard from '../components/EntityCard'
 import useIsMobile from '../hooks/useIsMobile'
 
 const TABS = ['Hotels', 'Tour Companies', 'Guides']
@@ -107,24 +107,26 @@ export default function SavedPage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '20px', alignItems: 'stretch' }}>
           {tab === 'Hotels' && hotels.map(h => (
-            <SavedCard
+            <EntityCard
               key={h.id}
               image={h.image}
               title={h.name}
               subtitle={h.regions?.name}
               linkLabel="Book Now"
               onOpen={() => window.open(h.url, '_blank', 'noopener,noreferrer')}
-              onRemove={() => removeHotel(h.id)}
+              saved
+              onToggleSave={() => removeHotel(h.id)}
             />
           ))}
           {tab === 'Tour Companies' && tourCompanies.map(t => (
-            <SavedCard
+            <EntityCard
               key={t.id}
               image={t.image}
               title={t.name}
               linkLabel="Visit site"
               onOpen={() => window.open(t.url, '_blank', 'noopener,noreferrer')}
-              onRemove={() => removeTourCompany(t.id)}
+              saved
+              onToggleSave={() => removeTourCompany(t.id)}
             />
           ))}
           {tab === 'Guides' && guides.map(g => {
@@ -133,13 +135,16 @@ export default function SavedPage() {
               ? `${placeName} — ${g.trip_days} day${g.trip_days === 1 ? '' : 's'}`
               : placeName
             return (
-              <SavedCard
+              <EntityCard
                 key={g.id}
                 image={g.cover_image}
                 title={heading}
+                subtitle={g.card_regions}
+                tag={g.pillars?.length > 0 ? g.pillars.join(' · ') : null}
                 linkLabel="Explore Itinerary"
                 onOpen={() => navigate(`/articles/${g.slug}`)}
-                onRemove={() => removeGuide(g.id)}
+                saved
+                onToggleSave={() => removeGuide(g.id)}
               />
             )
           })}

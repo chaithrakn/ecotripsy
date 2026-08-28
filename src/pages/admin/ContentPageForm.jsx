@@ -84,7 +84,7 @@ export default function ContentPageForm() {
         setTripDays(row.trip_days ?? '')
         setPillars(row.pillars || [])
         setCardRegions(row.card_regions || '')
-        setBlocks((row.body || []).map(b => ({ ...b, _id: newBlockId() })))
+        setBlocks((row.body || []).map(b => ({ ...emptyBlock(b.type), ...b, _id: newBlockId() })))
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
@@ -136,7 +136,7 @@ export default function ContentPageForm() {
         if (block.type === 'hotel_list') {
           const cleaned = { type: 'hotel_list' }
           if (block.region_id) cleaned.region_id = block.region_id
-          if (block.certified !== '') cleaned.certified = block.certified === 'true'
+          if (block.certified === 'true' || block.certified === 'false') cleaned.certified = block.certified === 'true'
           if (block.pillars?.length > 0) cleaned.pillars = block.pillars
           if (block.sort_by) cleaned.sort_by = block.sort_by
           return cleaned

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import HeartButton from './HeartButton'
 
-export default function SavedCard({ image, title, subtitle, linkLabel, onOpen, onRemove }) {
+export default function EntityCard({ image, title, subtitle, tag, linkLabel, onOpen, saved, onToggleSave }) {
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -26,7 +26,13 @@ export default function SavedCard({ image, title, subtitle, linkLabel, onOpen, o
         {image && (
           <img src={image} alt={title} style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
-        <HeartButton saved onClick={onRemove} style={{ position: 'absolute', top: '10px', right: '10px' }} />
+        {onToggleSave && (
+          <HeartButton
+            saved={saved}
+            onClick={onToggleSave}
+            style={{ position: 'absolute', top: '10px', right: '10px' }}
+          />
+        )}
       </div>
 
       <h3 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: '21px', fontWeight: 600, color: '#111827', margin: '0 0 6px', lineHeight: 1.3 }}>
@@ -34,11 +40,17 @@ export default function SavedCard({ image, title, subtitle, linkLabel, onOpen, o
       </h3>
 
       {subtitle && (
+        <p style={{ fontSize: '15px', color: '#6b7280', margin: '0 0 2px', lineHeight: 1.5 }}>
+          {subtitle}
+        </p>
+      )}
+
+      {tag && (
         <p style={{
-          fontSize: '15px', color: '#6b7280', margin: '0 0 10px',
+          fontSize: '15px', fontWeight: 600, color: '#0F2E1D', margin: '0 0 10px',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
         }}>
-          {subtitle}
+          {tag}
         </p>
       )}
 
