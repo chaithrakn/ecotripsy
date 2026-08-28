@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllContentPages } from '../lib/supabase/api'
+import { subscribeEmail } from '../lib/supabase/subscribers'
 import { useAuth } from '../context/AuthContext'
 import useIsMobile from '../hooks/useIsMobile'
 import AccountRail from './AccountRail'
@@ -149,8 +150,22 @@ const SOCIALS = [
 export default function Layout({ children }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [subscribeStatus, setSubscribeStatus] = useState('idle')
   const isMobile = useIsMobile()
   const { isLoggedIn } = useAuth()
+
+  async function handleSubscribe() {
+    if (!email.trim() || subscribeStatus === 'saving') return
+    setSubscribeStatus('saving')
+    try {
+      const { alreadySubscribed } = await subscribeEmail(email.trim())
+      setSubscribeStatus(alreadySubscribed ? 'already' : 'success')
+      setEmail('')
+    } catch (err) {
+      console.error('Failed to subscribe:', err)
+      setSubscribeStatus('error')
+    }
+  }
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#faf9f6' }}>
@@ -224,17 +239,37 @@ export default function Layout({ children }) {
             <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '14px' }}>
               Stories, guides and sustainable travel ideas.
             </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <input
-                placeholder="Your email address"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '15px', outline: 'none', width: isMobile ? '100%' : '220px', boxSizing: 'border-box' }}
-              />
-              <button style={{ padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                Subscribe
-              </button>
-            </div>
+            {subscribeStatus === 'success' || subscribeStatus === 'already' ? (
+              <p style={{ fontSize: '15px', color: '#0F6E56', fontWeight: 600, margin: 0 }}>
+                {subscribeStatus === 'already' ? "You're already subscribed." : "You're on the list!"}
+              </p>
+            ) : (
+              <form onSubmit={e => { e.preventDefault(); handleSubscribe() }} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <input
+                  type="email"
+                  required
+                  placeholder="Your email address"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '15px', outline: 'none', width: isMobile ? '100%' : '220px', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="submit"
+                  disabled={subscribeStatus === 'saving'}
+                  style={{ padding: '10px 18px', backgroundColor: '#0F2E1D', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: subscribeStatus === 'saving' ? 'default' : 'pointer', whiteSpace: 'nowrap', opacity: subscribeStatus === 'saving' ? 0.7 : 1 }}
+                >
+                  {subscribeStatus === 'saving' ? 'Subscribing...' : 'Subscribe'}
+                </button>
+              </form>
+            )}
+            {subscribeStatus !== 'success' && subscribeStatus !== 'already' && (
+              <p style={{ fontSize: '12px', color: '#9ca3af', margin: '8px 0 0' }}>
+                No spam, ever. Unsubscribe anytime.
+              </p>
+            )}
+            {subscribeStatus === 'error' && (
+              <p style={{ fontSize: '13px', color: '#ef4444', margin: '8px 0 0' }}>Something went wrong. Please try again.</p>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '48px' }}>

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
+import InterestPopup from './components/InterestPopup'
 import Home from './pages/Home'
 import ArticlePage from './pages/ArticlePage'
 import PlanATripPage from './pages/PlanATripPage'
@@ -29,6 +30,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
       <ScrollToTop />
+      <InterestPopup />
       <Routes>
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/plan-a-trip" element={<Layout><PlanATripPage /></Layout>} />
