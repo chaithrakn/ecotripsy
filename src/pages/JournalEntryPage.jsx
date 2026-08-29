@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import { getJournalEntryBySlug } from '../lib/supabase/api'
-import useSeo from '../hooks/useSeo'
+import useSeo, { SITE_URL } from '../hooks/useSeo'
 
 export default function JournalEntryPage() {
   const { slug } = useParams()
@@ -13,7 +13,22 @@ export default function JournalEntryPage() {
   useSeo({
     title: entry?.title,
     description: entry?.excerpt,
-    path: `/journal/${slug}`
+    path: `/journal/${slug}`,
+    structuredData: entry ? {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: entry.title,
+      description: entry.excerpt,
+      image: entry.cover_image,
+      datePublished: entry.created_at,
+      author: { '@type': 'Organization', name: 'Greenlugg' },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Greenlugg',
+        logo: { '@type': 'ImageObject', url: `${SITE_URL}/greenlugg-mark.png` }
+      },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/journal/${slug}` }
+    } : null
   })
 
   useEffect(() => {

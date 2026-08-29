@@ -152,8 +152,20 @@ export default function Layout({ children }) {
   const [email, setEmail] = useState('')
   const [subscriberRole, setSubscriberRole] = useState('')
   const [subscribeStatus, setSubscribeStatus] = useState('idle')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isMobile = useIsMobile()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user, signOut } = useAuth()
+
+  function goTo(path) {
+    setMobileMenuOpen(false)
+    navigate(path)
+  }
+
+  async function handleMobileSignOut() {
+    setMobileMenuOpen(false)
+    await signOut()
+    navigate('/')
+  }
 
   async function handleSubscribe() {
     if (!email.trim() || subscribeStatus === 'saving') return
@@ -183,7 +195,7 @@ export default function Layout({ children }) {
           <img
             src="/logo2.png"
             alt="Greenlugg"
-            onClick={() => navigate('/')}
+            onClick={() => goTo('/')}
             style={{ height: isMobile ? '32px' : '40px', width: 'auto', cursor: 'pointer', justifySelf: 'start' }}
           />
           {!isMobile && (
@@ -203,8 +215,52 @@ export default function Layout({ children }) {
             >
               Plan a trip
             </button>
+            {isMobile && (
+              <button
+                onClick={() => setMobileMenuOpen(o => !o)}
+                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '999px', border: '1px solid #e5e4e0', backgroundColor: 'white', cursor: 'pointer', flexShrink: 0, padding: 0 }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round">
+                  {mobileMenuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+                </svg>
+              </button>
+            )}
           </div>
         </div>
+
+        {isMobile && mobileMenuOpen && (
+          <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid #e5e4e0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {[
+              { label: 'Explore', path: '/plan-a-trip' },
+              { label: 'Places', path: '/' },
+              { label: 'Field Notes', path: '/journal' },
+              { label: 'About', path: '/about' },
+              { label: 'Partner', path: '/partner' }
+            ].map(item => (
+              <span
+                key={item.label}
+                onClick={() => goTo(item.path)}
+                style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}
+              >
+                {item.label}
+              </span>
+            ))}
+
+            <div style={{ height: '1px', backgroundColor: '#e5e4e0', margin: '8px 0' }} />
+
+            {isLoggedIn ? (
+              <>
+                <span style={{ padding: '4px 4px 10px', fontSize: '13px', color: '#9ca3af' }}>{user.email}</span>
+                <span onClick={() => goTo('/saved')} style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Saved</span>
+                <span onClick={() => goTo('/trips')} style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Trips</span>
+                <span onClick={handleMobileSignOut} style={{ padding: '10px 4px', fontSize: '15px', color: '#ef4444', cursor: 'pointer' }}>Log out</span>
+              </>
+            ) : (
+              <span onClick={() => goTo('/login')} style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Log in</span>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* Page content */}

@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import HeartButton from '../components/HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
 import { setPendingSave } from '../lib/pendingSave'
-import useSeo from '../hooks/useSeo'
+import useSeo, { SITE_URL } from '../hooks/useSeo'
 
 function TourCompanyList({ tours, savedIds, onToggleSave }) {
   if (!tours?.length) return null
@@ -110,7 +110,8 @@ export default function ArticlePage() {
   const [tripTemplate, setTripTemplate] = useState(null)
   const planScrollRef = useRef(null)
   const isMobile = useIsMobile()
-  const { user, isLoggedIn } = useAuth()
+  const { user, isLoggedIn, signOut } = useAuth()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [savedHotelIds, setSavedHotelIds] = useState(new Set())
   const [savedTourCompanyIds, setSavedTourCompanyIds] = useState(new Set())
   const [savedGuideIds, setSavedGuideIds] = useState(new Set())
@@ -118,7 +119,22 @@ export default function ArticlePage() {
   useSeo({
     title: article?.title,
     description: article?.excerpt || article?.intro,
-    path: `/articles/${slug}`
+    path: `/articles/${slug}`,
+    structuredData: article ? {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.title,
+      description: article.excerpt || article.intro,
+      image: article.cover_image,
+      datePublished: article.created_at,
+      author: { '@type': 'Organization', name: 'Greenlugg' },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Greenlugg',
+        logo: { '@type': 'ImageObject', url: `${SITE_URL}/greenlugg-mark.png` }
+      },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/articles/${slug}` }
+    } : null
   })
 
   useEffect(() => {
@@ -143,6 +159,12 @@ export default function ArticlePage() {
       .catch(err => console.error('Failed to load saved items:', err))
     return () => { cancelled = true }
   }, [user])
+
+  async function handleMobileSignOut() {
+    setMobileMenuOpen(false)
+    await signOut()
+    navigate('/')
+  }
 
   async function toggleSaveGuide() {
     if (!article) return
@@ -318,26 +340,52 @@ export default function ArticlePage() {
 
       {/* SIDEBAR */}
       {isMobile ? (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: 'white',
-          borderBottom: '1px solid #f3f4f6',
-          padding: '14px 16px',
-        }}>
-          <img
-            src="/logo2.png"
-            alt="Greenlugg"
-            style={{ height: '30px', width: 'auto', cursor: 'pointer' }}
-            onClick={() => navigate('/')}
-          />
-          <button
-            onClick={() => navigate('/')}
-            style={{ background: 'none', border: '1px solid #e5e4e0', borderRadius: '999px', padding: '6px 14px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}
-          >
-            ← All destinations
-          </button>
+        <div style={{ backgroundColor: 'white', borderBottom: '1px solid #f3f4f6' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 16px',
+          }}>
+            <img
+              src="/logo2.png"
+              alt="Greenlugg"
+              style={{ height: '30px', width: 'auto', cursor: 'pointer' }}
+              onClick={() => navigate('/')}
+            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={() => navigate('/')}
+                style={{ background: 'none', border: '1px solid #e5e4e0', borderRadius: '999px', padding: '6px 14px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}
+              >
+                ← All destinations
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(o => !o)}
+                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '999px', border: '1px solid #e5e4e0', backgroundColor: 'white', cursor: 'pointer', flexShrink: 0, padding: 0 }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round">
+                  {mobileMenuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {mobileMenuOpen && (
+            <div style={{ padding: '4px 16px 16px', display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #f3f4f6' }}>
+              {isLoggedIn ? (
+                <>
+                  <span style={{ padding: '10px 4px 4px', fontSize: '13px', color: '#9ca3af' }}>{user.email}</span>
+                  <span onClick={() => { setMobileMenuOpen(false); navigate('/saved') }} style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Saved</span>
+                  <span onClick={() => { setMobileMenuOpen(false); navigate('/trips') }} style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Trips</span>
+                  <span onClick={handleMobileSignOut} style={{ padding: '10px 4px', fontSize: '15px', color: '#ef4444', cursor: 'pointer' }}>Log out</span>
+                </>
+              ) : (
+                <span onClick={() => { setMobileMenuOpen(false); navigate('/login') }} style={{ padding: '10px 4px', fontSize: '15px', color: '#374151', cursor: 'pointer' }}>Log in</span>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <div style={{

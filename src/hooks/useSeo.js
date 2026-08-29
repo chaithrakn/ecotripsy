@@ -29,7 +29,26 @@ function setCanonical(path) {
   link.setAttribute('href', `${SITE_URL}${path}`)
 }
 
-export default function useSeo({ title, description, path, noIndex = false }) {
+function setStructuredData(data) {
+  let script = document.getElementById('seo-jsonld')
+  if (!data) {
+    if (script) script.remove()
+    return
+  }
+  if (!script) {
+    script = document.createElement('script')
+    script.id = 'seo-jsonld'
+    script.type = 'application/ld+json'
+    document.head.appendChild(script)
+  }
+  script.textContent = JSON.stringify(data)
+}
+
+export { SITE_URL }
+
+export default function useSeo({ title, description, path, noIndex = false, structuredData = null }) {
+  const structuredDataKey = structuredData ? JSON.stringify(structuredData) : null
+
   useEffect(() => {
     document.title = title ? `${title} | ${SITE_NAME}` : SITE_NAME
 
@@ -43,5 +62,8 @@ export default function useSeo({ title, description, path, noIndex = false }) {
     }
 
     setMetaTag('name', 'robots', noIndex ? 'noindex, nofollow' : 'index, follow')
-  }, [title, description, path, noIndex])
+
+    setStructuredData(structuredDataKey ? JSON.parse(structuredDataKey) : null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, path, noIndex, structuredDataKey])
 }
