@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from './context/AuthContext'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
@@ -31,6 +32,7 @@ function App() {
       <AuthProvider>
       <ScrollToTop />
       <InterestPopup />
+      <Analytics />
       <Routes>
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/plan-a-trip" element={<Layout><PlanATripPage /></Layout>} />
