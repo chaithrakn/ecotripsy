@@ -150,6 +150,7 @@ const SOCIALS = [
 export default function Layout({ children }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [subscriberRole, setSubscriberRole] = useState('')
   const [subscribeStatus, setSubscribeStatus] = useState('idle')
   const isMobile = useIsMobile()
   const { isLoggedIn } = useAuth()
@@ -158,9 +159,10 @@ export default function Layout({ children }) {
     if (!email.trim() || subscribeStatus === 'saving') return
     setSubscribeStatus('saving')
     try {
-      const { alreadySubscribed } = await subscribeEmail(email.trim())
+      const { alreadySubscribed } = await subscribeEmail(email.trim(), subscriberRole)
       setSubscribeStatus(alreadySubscribed ? 'already' : 'success')
       setEmail('')
+      setSubscriberRole('')
     } catch (err) {
       console.error('Failed to subscribe:', err)
       setSubscribeStatus('error')
@@ -253,6 +255,17 @@ export default function Layout({ children }) {
                   onChange={e => setEmail(e.target.value)}
                   style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#111827', fontSize: '15px', outline: 'none', width: isMobile ? '100%' : '220px', boxSizing: 'border-box' }}
                 />
+                <select
+                  value={subscriberRole}
+                  onChange={e => setSubscriberRole(e.target.value)}
+                  style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: subscriberRole ? '#111827' : '#9ca3af', fontSize: '15px', outline: 'none', width: isMobile ? '100%' : '190px', boxSizing: 'border-box' }}
+                >
+                  <option value="">I am... (optional)</option>
+                  <option value="Traveler">Traveler</option>
+                  <option value="Property / Tour Company">Property / Tour Company</option>
+                  <option value="Media">Media</option>
+                  <option value="Other">Other</option>
+                </select>
                 <button
                   type="submit"
                   disabled={subscribeStatus === 'saving'}
@@ -292,8 +305,9 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1280px', margin: '32px auto 0', paddingTop: '20px', borderTop: '1px solid #e5e4e0' }}>
-          <p style={{ fontSize: '12px', color: '#9ca3af' }}>© 2026 greenlugg. All rights reserved.</p>
+        <div style={{ maxWidth: '1280px', margin: '32px auto 0', paddingTop: '20px', borderTop: '1px solid #e5e4e0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>© 2026 greenlugg. All rights reserved.</p>
+          <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>Photography courtesy of Unsplash</p>
         </div>
       </footer>
 

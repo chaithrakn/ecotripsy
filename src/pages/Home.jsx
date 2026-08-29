@@ -5,6 +5,7 @@ import PillarsSection from '../components/PillarsSection'
 import ArticleGrid from '../components/ArticleGrid'
 import HeroSearchBar from '../components/HeroSearchBar'
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 function ArrowRight({ color = '#111827' }) {
   return (
@@ -19,6 +20,12 @@ export default function Home() {
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const isMobile = useIsMobile()
+
+  useSeo({
+    title: 'Curated Sustainable Travel',
+    description: 'Handpicked eco-conscious hotels, tours and itineraries — every stay and experience researched and selected for community benefit, conservation or regeneration.',
+    path: '/'
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -58,7 +65,7 @@ export default function Home() {
                 built around experiences.
               </h1>
               <p style={{ fontSize: '15px', color: '#111827', lineHeight: 1.7, margin: '18px 0 24px', maxWidth: isMobile ? 'none' : '420px' }}>
-                Handpicked stays, meaningful experiences and local discoveries — all in one place to help you travel better.
+                Every stay, guide and experience is manually researched and selected for community benefit, conservation or regeneration.
               </p>
             </div>
           </div>

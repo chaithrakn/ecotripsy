@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /saved
+Disallow: /trips
+Disallow: /saved-itineraries
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://greenlugg.vercel.app/sitemap.xml

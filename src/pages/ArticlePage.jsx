@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import HeartButton from '../components/HeartButton'
 import useIsMobile from '../hooks/useIsMobile'
 import { setPendingSave } from '../lib/pendingSave'
+import useSeo from '../hooks/useSeo'
 
 function TourCompanyList({ tours, savedIds, onToggleSave }) {
   if (!tours?.length) return null
@@ -113,6 +114,12 @@ export default function ArticlePage() {
   const [savedHotelIds, setSavedHotelIds] = useState(new Set())
   const [savedTourCompanyIds, setSavedTourCompanyIds] = useState(new Set())
   const [savedGuideIds, setSavedGuideIds] = useState(new Set())
+
+  useSeo({
+    title: article?.title,
+    description: article?.excerpt || article?.intro,
+    path: `/articles/${slug}`
+  })
 
   useEffect(() => {
     if (itinerary) planScrollRef.current?.scrollTo({ top: 0 })

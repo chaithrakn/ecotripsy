@@ -4,11 +4,14 @@ import { useAuth } from '../context/AuthContext'
 import { getSavedItineraries, deleteSavedItinerary } from '../lib/supabase/saved'
 import EntityCard from '../components/EntityCard'
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 export default function TripsPage() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const { user, loading: authLoading } = useAuth()
+
+  useSeo({ title: 'Your Trips', path: '/trips', noIndex: true })
   const [itineraries, setItineraries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)

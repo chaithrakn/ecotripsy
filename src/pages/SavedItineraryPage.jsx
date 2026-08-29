@@ -3,11 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getSavedItineraryById, deleteSavedItinerary } from '../lib/supabase/saved'
 import Itinerary from '../components/Itinerary'
+import useSeo from '../hooks/useSeo'
 
 export default function SavedItineraryPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
+
+  useSeo({ title: 'Saved Itinerary', path: `/saved-itineraries/${id}`, noIndex: true })
   const [entry, setEntry] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)

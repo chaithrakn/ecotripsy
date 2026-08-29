@@ -1,7 +1,11 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { ENTITIES } from '../../lib/admin/entityConfigs'
+import useSeo from '../../hooks/useSeo'
 
 export default function AdminLayout() {
+  const location = useLocation()
+  useSeo({ title: 'Admin', path: location.pathname, noIndex: true })
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
       <div style={{ width: '220px', flexShrink: 0, borderRight: '1px solid #f3f4f6', padding: '24px 16px' }}>

@@ -2,12 +2,19 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllJournalEntries } from '../lib/supabase/api'
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 export default function JournalListPage() {
   const navigate = useNavigate()
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const isMobile = useIsMobile()
+
+  useSeo({
+    title: 'Field Notes',
+    description: 'Short reads and reflections from the road — stories from sustainable travel across the world.',
+    path: '/journal'
+  })
 
   useEffect(() => {
     let cancelled = false

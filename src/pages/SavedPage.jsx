@@ -8,6 +8,7 @@ import {
 } from '../lib/supabase/saved'
 import EntityCard from '../components/EntityCard'
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 const TABS = ['Hotels', 'Tour Companies', 'Guides']
 
@@ -15,6 +16,8 @@ export default function SavedPage() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const { user, loading: authLoading } = useAuth()
+
+  useSeo({ title: 'Your Saved Places', path: '/saved', noIndex: true })
   const [tab, setTab] = useState('Hotels')
   const [hotels, setHotels] = useState([])
   const [tourCompanies, setTourCompanies] = useState([])

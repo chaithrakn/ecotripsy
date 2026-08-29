@@ -5,6 +5,7 @@ import PillarsSection from '../components/PillarsSection'
 import ArticleGrid from '../components/ArticleGrid'
 import { PILLAR_COLORS } from '../lib/pillars'
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 export default function PlanATripPage() {
   const [articles, setArticles] = useState([])
@@ -13,6 +14,12 @@ export default function PlanATripPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const pillarFilter = searchParams.get('pillar')
+
+  useSeo({
+    title: 'Curated Itineraries',
+    description: 'Browse curated sustainable travel itineraries by destination — pick hotels, tours and build your trip.',
+    path: '/plan-a-trip'
+  })
 
   useEffect(() => {
     let cancelled = false

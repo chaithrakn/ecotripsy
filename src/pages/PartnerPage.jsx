@@ -1,7 +1,14 @@
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 export default function PartnerPage() {
   const isMobile = useIsMobile()
+
+  useSeo({
+    title: 'Partner With Us',
+    description: 'Run a sustainable hotel, tour company, or experience? Partner with Greenlugg to reach travelers who care.',
+    path: '/partner'
+  })
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: isMobile ? '48px 20px 64px' : '64px 40px 96px' }}>

@@ -2,12 +2,19 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import { getJournalEntryBySlug } from '../lib/supabase/api'
+import useSeo from '../hooks/useSeo'
 
 export default function JournalEntryPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const [entry, setEntry] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  useSeo({
+    title: entry?.title,
+    description: entry?.excerpt,
+    path: `/journal/${slug}`
+  })
 
   useEffect(() => {
     let cancelled = false

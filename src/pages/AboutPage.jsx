@@ -1,7 +1,14 @@
 import useIsMobile from '../hooks/useIsMobile'
+import useSeo from '../hooks/useSeo'
 
 export default function AboutPage() {
   const isMobile = useIsMobile()
+
+  useSeo({
+    title: 'About',
+    description: "At Greenlugg, we're building the ecosystem to curate the world's best sustainable and regenerative hotels and experiences.",
+    path: '/about'
+  })
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: isMobile ? '48px 20px 64px' : '64px 40px 96px' }}>

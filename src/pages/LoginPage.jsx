@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { takePendingSave, executePendingSave } from '../lib/pendingSave'
+import useSeo from '../hooks/useSeo'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -10,6 +11,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  useSeo({ title: 'Log In', path: '/login', noIndex: true })
 
   async function handleSubmit(e) {
     e.preventDefault()
