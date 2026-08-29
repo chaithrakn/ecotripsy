@@ -19,7 +19,7 @@ function loadEnv() {
 const env = loadEnv()
 const SUPABASE_URL = env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY
-const SITE_URL = env.VITE_SITE_URL || 'https://greenlugg.vercel.app'
+const SITE_URL = env.VITE_SITE_URL || 'https://www.greenlugg.com'
 
 const STATIC_ROUTES = ['/', '/plan-a-trip', '/journal', '/about', '/partner']
 

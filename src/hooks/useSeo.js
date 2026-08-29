@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://greenlugg.vercel.app'
+const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://www.greenlugg.com'
 const SITE_NAME = 'Greenlugg'
 
 function setMetaTag(attr, value, content) {
