@@ -4,7 +4,7 @@ const KEY = 'greenlugg_pending_save'
 
 export function setPendingSave(action) {
   try {
-    sessionStorage.setItem(KEY, JSON.stringify(action))
+    localStorage.setItem(KEY, JSON.stringify(action))
   } catch (err) {
     console.error('Failed to store pending save:', err)
   }
@@ -12,9 +12,9 @@ export function setPendingSave(action) {
 
 export function takePendingSave() {
   try {
-    const raw = sessionStorage.getItem(KEY)
+    const raw = localStorage.getItem(KEY)
     if (!raw) return null
-    sessionStorage.removeItem(KEY)
+    localStorage.removeItem(KEY)
     return JSON.parse(raw)
   } catch (err) {
     console.error('Failed to read pending save:', err)

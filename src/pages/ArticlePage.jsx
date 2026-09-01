@@ -535,7 +535,7 @@ export default function ArticlePage() {
                 >
                   ← Back to form
                 </button>
-                <Itinerary data={itinerary} highlightedId={highlightedId} onHighlight={setHighlightedId} contentPageId={article.id} />
+                <Itinerary data={itinerary} highlightedId={highlightedId} onHighlight={setHighlightedId} contentPageId={article.id} scrollContainerRef={planScrollRef} />
               </>
             )}
             <div style={{ height: '60px' }} />
