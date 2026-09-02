@@ -42,6 +42,18 @@ function TourCompanyList({ tours, savedIds, onToggleSave }) {
   )
 }
 
+function buildBreadcrumbItems(article, slug, country) {
+  const items = [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+    { '@type': 'ListItem', position: 2, name: 'Destinations', item: `${SITE_URL}/` }
+  ]
+  if (country) {
+    items.push({ '@type': 'ListItem', position: items.length + 1, name: country.name })
+  }
+  items.push({ '@type': 'ListItem', position: items.length + 1, name: article.title, item: `${SITE_URL}/articles/${slug}` })
+  return items
+}
+
 function groupBodyIntoSections(body) {
   const sections = []
   let current = null
@@ -116,25 +128,34 @@ export default function ArticlePage() {
   const [savedTourCompanyIds, setSavedTourCompanyIds] = useState(new Set())
   const [savedGuideIds, setSavedGuideIds] = useState(new Set())
 
+  const country = article?.destinations?.countries || article?.regions?.destinations?.countries || null
+
   useSeo({
     title: article?.title,
     description: article?.excerpt || article?.intro,
     path: `/articles/${slug}`,
-    structuredData: article ? {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: article.title,
-      description: article.excerpt || article.intro,
-      image: article.cover_image,
-      datePublished: article.created_at,
-      author: { '@type': 'Organization', name: 'Greenlugg' },
-      publisher: {
-        '@type': 'Organization',
-        name: 'Greenlugg',
-        logo: { '@type': 'ImageObject', url: `${SITE_URL}/greenlugg-mark.png` }
+    structuredData: article ? [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: article.title,
+        description: article.excerpt || article.intro,
+        image: article.cover_image,
+        datePublished: article.created_at,
+        author: { '@type': 'Organization', name: 'Greenlugg' },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Greenlugg',
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/greenlugg-mark.png` }
+        },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/articles/${slug}` }
       },
-      mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/articles/${slug}` }
-    } : null
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: buildBreadcrumbItems(article, slug, country)
+      }
+    ] : null
   })
 
   useEffect(() => {
@@ -463,6 +484,17 @@ export default function ArticlePage() {
 
             {/* Content */}
             <div style={{ padding: isMobile ? '24px 16px' : '32px 48px' }}>
+              <nav aria-label="Breadcrumb" style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+                <span onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Home</span>
+                <span>/</span>
+                <span onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Destinations</span>
+                {country && (
+                  <>
+                    <span>/</span>
+                    <span>{country.name}</span>
+                  </>
+                )}
+              </nav>
               {article.intro && (
                 <div style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '32px', maxWidth: '680px' }}>
                   <ReactMarkdown>{article.intro}</ReactMarkdown>

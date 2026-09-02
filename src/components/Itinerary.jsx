@@ -188,9 +188,10 @@ function BackToTopButton({ scrollContainerRef }) {
     function handleScroll() {
       const containerTop = scrollContainerRef?.current?.scrollTop || 0
       const windowTop = window.scrollY || 0
-      setVisible(Math.max(containerTop, windowTop) > 400)
+      setVisible(Math.max(containerTop, windowTop) > 200)
     }
     const el = scrollContainerRef?.current
+    handleScroll()
     window.addEventListener('scroll', handleScroll)
     el?.addEventListener('scroll', handleScroll)
     return () => {

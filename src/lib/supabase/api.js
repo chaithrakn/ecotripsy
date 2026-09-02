@@ -215,7 +215,7 @@ async function resolveContentBlocks(article) {
 export async function getContentPageBySlug(slug) {
   const { data, error } = await supabase
     .from('content_pages')
-    .select('*, destinations(slug), regions(destinations(slug))')
+    .select('*, destinations(slug, countries(name, slug)), regions(destinations(slug, countries(name, slug)))')
     .eq('slug', slug)
     .eq('published', true)
     .single()

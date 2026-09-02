@@ -9,6 +9,18 @@ export async function loadDestinationOptions() {
   return data.map(d => ({ value: d.id, label: d.name }))
 }
 
+export async function loadContinentOptions() {
+  const { data, error } = await supabase.from('continents').select('id, name').order('name')
+  if (error) throw error
+  return data.map(c => ({ value: c.id, label: c.name }))
+}
+
+export async function loadCountryOptions() {
+  const { data, error } = await supabase.from('countries').select('id, name').order('name')
+  if (error) throw error
+  return data.map(c => ({ value: c.id, label: c.name }))
+}
+
 export async function loadRegionOptionsForDestination(destinationId) {
   if (!destinationId) return []
   const { data, error } = await supabase
@@ -27,12 +39,32 @@ async function getDestinationIdForRegion(regionId) {
   return data.destination_id
 }
 
+export const CONTINENT_CONFIG = {
+  table: 'continents',
+  label: 'Continents',
+  fields: [
+    { name: 'name', type: 'text', required: true },
+    { name: 'slug', type: 'text', required: true }
+  ]
+}
+
+export const COUNTRY_CONFIG = {
+  table: 'countries',
+  label: 'Countries',
+  fields: [
+    { name: 'continent_id', type: 'select', label: 'Continent', loadOptions: loadContinentOptions, required: true },
+    { name: 'name', type: 'text', required: true },
+    { name: 'slug', type: 'text', required: true }
+  ]
+}
+
 export const DESTINATION_CONFIG = {
   table: 'destinations',
   label: 'Destinations',
   fields: [
     { name: 'name', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true },
+    { name: 'country_id', type: 'select', label: 'Country', loadOptions: loadCountryOptions },
     { name: 'tagline', type: 'text' },
     { name: 'image', type: 'text', label: 'Image URL' },
     { name: 'overview', type: 'textarea' },
@@ -120,4 +152,4 @@ export const JOURNAL_CONFIG = {
   ]
 }
 
-export const ENTITIES = [DESTINATION_CONFIG, REGION_CONFIG, HOTEL_CONFIG, TOUR_COMPANY_CONFIG, EXPERIENCE_CONFIG, JOURNAL_CONFIG]
+export const ENTITIES = [CONTINENT_CONFIG, COUNTRY_CONFIG, DESTINATION_CONFIG, REGION_CONFIG, HOTEL_CONFIG, TOUR_COMPANY_CONFIG, EXPERIENCE_CONFIG, JOURNAL_CONFIG]
