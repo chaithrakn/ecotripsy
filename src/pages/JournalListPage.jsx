@@ -48,7 +48,7 @@ export default function JournalListPage() {
             >
               <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '12px', aspectRatio: '4/3', backgroundColor: '#eeece5' }}>
                 {entry.cover_image && (
-                  <img src={entry.cover_image} alt={entry.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={entry.cover_image} alt={entry.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
               </div>
               <h3 style={{ fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif', fontSize: '17px', fontWeight: 600, color: '#111827', margin: '0 0 6px', lineHeight: 1.35 }}>

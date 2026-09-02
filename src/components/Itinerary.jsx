@@ -154,6 +154,7 @@ function DayCard({ day, highlightedId, onHighlight }) {
             <img
               src={day.hotel.image}
               alt={day.hotel.name}
+              loading="lazy"
               style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
             />
           )}

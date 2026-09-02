@@ -457,6 +457,7 @@ export default function ArticlePage() {
               <img
                 src={article.cover_image}
                 alt={article.title}
+                fetchpriority="high"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />

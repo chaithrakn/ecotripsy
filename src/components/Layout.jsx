@@ -279,7 +279,7 @@ export default function Layout({ children }) {
       <footer style={{ backgroundColor: '#f3f2ee', color: '#111827', padding: isMobile ? '40px 20px 24px' : '56px 40px 32px' }}>
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: isMobile ? '32px' : '48px', flexWrap: 'wrap', maxWidth: '1280px', margin: '0 auto' }}>
           <div style={{ maxWidth: isMobile ? 'none' : '340px' }}>
-            <img src="/logo2.png" alt="Greenlugg" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
+            <img src="/logo2.png" alt="Greenlugg" loading="lazy" style={{ height: '32px', width: 'auto', marginBottom: '10px' }} />
             <p style={{ fontSize: '15px', color: '#6b7280', lineHeight: 1.6 }}>
               At Greenlugg, we are passionate about preserving the environments and communities we travel through. We are building the ecosystem to curate the world's best sustainable and regenerative hotels and experiences, to make your travel more meaningful.
             </p>

@@ -60,7 +60,7 @@ export default function JournalEntryPage() {
 
       {entry.cover_image && (
         <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '28px', aspectRatio: '16/9' }}>
-          <img src={entry.cover_image} alt={entry.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={entry.cover_image} alt={entry.title} fetchpriority="high" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
       )}
 
@@ -78,7 +78,7 @@ export default function JournalEntryPage() {
         <ReactMarkdown
           components={{
             img: ({ node, ...props }) => (
-              <img {...props} style={{ width: '100%', borderRadius: '12px', margin: '20px 0' }} />
+              <img {...props} loading="lazy" style={{ width: '100%', borderRadius: '12px', margin: '20px 0' }} />
             )
           }}
         >

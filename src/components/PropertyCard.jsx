@@ -24,6 +24,7 @@ export default function PropertyCard({ hotel, highlighted, onHighlight, saved, o
       <img
         src={hotel.image}
         alt={hotel.name}
+        loading="lazy"
         style={{ width: isMobile ? '100%' : '200px', height: isMobile ? '160px' : 'auto', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, alignSelf: isMobile ? 'auto' : 'stretch' }}
       />
       <div style={{ flex: 1 }}>

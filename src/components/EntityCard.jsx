@@ -24,7 +24,7 @@ export default function EntityCard({ image, title, subtitle, tag, linkLabel, onO
     >
       <div style={{ position: 'relative', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px', aspectRatio: '4/3', minWidth: 0, width: '100%', backgroundColor: '#eeece5' }}>
         {image && (
-          <img src={image} alt={title} style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={image} alt={title} loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
         {onToggleSave && (
           <HeartButton

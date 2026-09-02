@@ -46,6 +46,7 @@ export default function Home() {
             <img
               src="/images/header2.avif"
               alt=""
+              fetchpriority="high"
               style={{ position: isMobile ? 'static' : 'absolute', inset: 0, width: '100%', height: isMobile ? '260px' : '100%', objectFit: 'cover' }}
             />
             {!isMobile && (

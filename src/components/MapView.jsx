@@ -132,6 +132,7 @@ export default function MapView({ places, highlightedId }) {
                 <img
                   src={place.image}
                   alt={place.name}
+                  loading="lazy"
                   style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', marginBottom: '6px' }}
                 />
               )}
