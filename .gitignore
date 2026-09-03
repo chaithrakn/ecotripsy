@@ -25,3 +25,6 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# mcp-agent (learning project, lives on mcp-testing branch only)
+mcp-agent/
