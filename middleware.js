@@ -3,6 +3,7 @@ const BOT_UA_REGEX = /bot|crawl|spider|slurp|facebookexternalhit|twitterbot|link
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY
 const SITE_URL = process.env.VITE_SITE_URL || 'https://www.greenlugg.com'
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`
 
 export const config = {
   matcher: ['/articles/:path*', '/journal/:path*', '/plan-a-trip', '/about', '/partner']
@@ -75,10 +76,11 @@ function renderBreadcrumbNav(breadcrumbItems) {
   return `<nav aria-label="Breadcrumb">${parts.join(' / ')}</nav>`
 }
 
-function renderHtml({ title, description, image, url, type, structuredData, breadcrumbItems }) {
+function renderHtml({ title, description, image, url, type, structuredData, breadcrumbItems, subtext }) {
   const safeTitle = escapeHtml(title)
   const safeDescription = escapeHtml(description)
   const safeImage = image ? escapeHtml(image) : null
+  const safeSubtext = subtext ? escapeHtml(subtext) : null
 
   return `<!doctype html>
 <html lang="en">
@@ -103,6 +105,7 @@ ${structuredData ? `<script type="application/ld+json">${JSON.stringify(structur
 <body>
 ${renderBreadcrumbNav(breadcrumbItems)}
 <h1>${safeTitle}</h1>
+${safeSubtext ? `<p>${safeSubtext}</p>` : ''}
 <p>${safeDescription}</p>
 </body>
 </html>`
@@ -121,7 +124,7 @@ export default async function middleware(request) {
     const html = renderHtml({
       title: staticPage.title,
       description: staticPage.description,
-      image: null,
+      image: DEFAULT_OG_IMAGE,
       url: `${SITE_URL}${url.pathname}`,
       type: 'website'
     })
@@ -141,7 +144,7 @@ export default async function middleware(request) {
     row = await fetchRow(
       'content_pages',
       articleMatch[1],
-      'title,excerpt,intro,cover_image,created_at,destinations(countries(name)),regions(destinations(countries(name)))'
+      'title,excerpt,intro,subtext,cover_image,created_at,destinations(countries(name)),regions(destinations(countries(name)))'
     )
   } else if (journalMatch) {
     row = await fetchRow('journal_entries', journalMatch[1], 'title,excerpt,cover_image,created_at')
@@ -165,7 +168,7 @@ export default async function middleware(request) {
       '@type': 'Article',
       headline: title,
       description,
-      image: row.cover_image,
+      image: row.cover_image || DEFAULT_OG_IMAGE,
       datePublished: row.created_at,
       author: { '@type': 'Organization', name: 'Greenlugg' },
       publisher: {
@@ -185,11 +188,12 @@ export default async function middleware(request) {
   const html = renderHtml({
     title,
     description,
-    image: row.cover_image,
+    image: row.cover_image || DEFAULT_OG_IMAGE,
     url: pageUrl,
     type,
     structuredData,
-    breadcrumbItems
+    breadcrumbItems,
+    subtext: row.subtext
   })
 
   return new Response(html, {

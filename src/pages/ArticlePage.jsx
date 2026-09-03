@@ -496,6 +496,11 @@ export default function ArticlePage() {
                   </>
                 )}
               </nav>
+              {article.subtext && (
+                <p style={{ fontSize: '16px', fontWeight: 600, color: '#111827', marginBottom: '20px', maxWidth: '680px' }}>
+                  {article.subtext}
+                </p>
+              )}
               {article.intro && (
                 <div style={{ fontSize: '15px', color: '#4b5563', lineHeight: 1.8, marginBottom: '32px', maxWidth: '680px' }}>
                   <ReactMarkdown>{article.intro}</ReactMarkdown>

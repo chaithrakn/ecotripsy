@@ -134,14 +134,11 @@ export default function SavedPage() {
           ))}
           {tab === 'Guides' && guides.map(g => {
             const placeName = g.destinations?.name ?? g.regions?.name ?? g.title
-            const heading = g.trip_days
-              ? `${placeName} — ${g.trip_days} day${g.trip_days === 1 ? '' : 's'}`
-              : placeName
             return (
               <EntityCard
                 key={g.id}
                 image={g.cover_image}
-                title={heading}
+                title={placeName}
                 subtitle={g.card_regions}
                 tag={g.pillars?.length > 0 ? g.pillars.join(' · ') : null}
                 linkLabel="Explore Itinerary"

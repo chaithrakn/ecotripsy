@@ -39,6 +39,7 @@ export default function ContentPageForm() {
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [excerpt, setExcerpt] = useState('')
+  const [subtext, setSubtext] = useState('')
   const [intro, setIntro] = useState('')
   const [coverImage, setCoverImage] = useState('')
   const [published, setPublished] = useState(false)
@@ -78,6 +79,7 @@ export default function ContentPageForm() {
         setTitle(row.title || '')
         setSlug(row.slug || '')
         setExcerpt(row.excerpt || '')
+        setSubtext(row.subtext || '')
         setIntro(row.intro || '')
         setCoverImage(row.cover_image || '')
         setPublished(Boolean(row.published))
@@ -153,6 +155,7 @@ export default function ContentPageForm() {
         title,
         slug,
         excerpt,
+        subtext: subtext || null,
         intro,
         cover_image: coverImage,
         published,
@@ -217,6 +220,13 @@ export default function ContentPageForm() {
       <div style={{ marginBottom: '18px' }}>
         <label style={fieldLabelStyle}>Excerpt</label>
         <textarea value={excerpt} onChange={e => setExcerpt(e.target.value)} rows={2} style={inputStyle} />
+      </div>
+
+      <div style={{ marginBottom: '18px' }}>
+        <label style={fieldLabelStyle}>
+          Subtext (shown under the breadcrumb, above the intro — e.g. "5–10 day sustainable itineraries for Slovenia". Optional, but this is real crawlable text on the page, so put the destination + day-range keywords you actually want to rank for here.)
+        </label>
+        <input value={subtext} onChange={e => setSubtext(e.target.value)} style={inputStyle} />
       </div>
 
       <div style={{ marginBottom: '18px' }}>
