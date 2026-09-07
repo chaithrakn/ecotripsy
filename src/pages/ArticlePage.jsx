@@ -5,6 +5,7 @@ import MapView from '../components/MapView'
 import PropertyCard from '../components/PropertyCard'
 import TripForm from '../components/TripForm'
 import Itinerary from '../components/Itinerary'
+import BackToTopButton from '../components/BackToTopButton'
 import CollapsibleSection from '../components/CollapsibleSection'
 import { AccountNavLinks, LogoutButton, GuestNavLinks } from '../components/AccountRail'
 import { getContentPageBySlug, getAttractionsByRegions, getTripTemplatesByDestination } from '../lib/supabase/api'
@@ -121,6 +122,7 @@ export default function ArticlePage() {
   const [attractions, setAttractions] = useState([])
   const [tripTemplate, setTripTemplate] = useState(null)
   const planScrollRef = useRef(null)
+  const listScrollRef = useRef(null)
   const isMobile = useIsMobile()
   const { user, isLoggedIn, signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -450,14 +452,14 @@ export default function ArticlePage() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: isMobile ? 'visible' : 'hidden', minWidth: 0 }}>
 
         {view === 'list' && (
-          <div style={{ flex: 1, overflowY: isMobile ? 'visible' : 'auto' }}>
+          <div ref={listScrollRef} style={{ flex: 1, overflowY: isMobile ? 'visible' : 'auto' }}>
 
             {/* Hero */}
             <div style={{ position: 'relative', height: isMobile ? '260px' : '380px' }}>
               <img
                 src={article.cover_image}
                 alt={article.title}
-                fetchpriority="high"
+                fetchPriority="high"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
@@ -548,6 +550,7 @@ export default function ArticlePage() {
               )}
             </div>
             <div style={{ height: '60px' }} />
+            <BackToTopButton scrollContainerRef={listScrollRef} />
           </div>
         )}
 

@@ -4,6 +4,9 @@ import HeartButton from './HeartButton'
 
 export default function PropertyCard({ hotel, highlighted, onHighlight, saved, onToggleSave }) {
   const isMobile = useIsMobile()
+  if (!hotel.pillars) {
+    console.warn(`Hotel "${hotel.name}" (${hotel.id}) has no pillars set`)
+  }
   return (
     <div
       onMouseEnter={() => onHighlight?.(hotel.id)}
@@ -52,7 +55,7 @@ export default function PropertyCard({ hotel, highlighted, onHighlight, saved, o
         <p style={{ fontSize: '15px', color: '#4b5563', marginBottom: '8px' }}>{hotel.description}</p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {hotel.pillars.map((pillar) => (
+            {(hotel.pillars || []).map((pillar) => (
               <span
                 key={pillar}
                 style={{

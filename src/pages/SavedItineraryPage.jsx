@@ -58,7 +58,7 @@ export default function SavedItineraryPage() {
         <img
           src={entry.content_pages.cover_image}
           alt={entry.title}
-          fetchpriority="high"
+          fetchPriority="high"
           style={{ width: '100%', height: '260px', objectFit: 'cover', borderRadius: '16px', marginBottom: '24px' }}
         />
       )}
