@@ -49,7 +49,7 @@ function buildBreadcrumbItems(article, slug, country) {
     { '@type': 'ListItem', position: 2, name: 'Destinations', item: `${SITE_URL}/` }
   ]
   if (country) {
-    items.push({ '@type': 'ListItem', position: items.length + 1, name: country.name })
+    items.push({ '@type': 'ListItem', position: items.length + 1, name: country.name, item: `${SITE_URL}/` })
   }
   items.push({ '@type': 'ListItem', position: items.length + 1, name: article.title, item: `${SITE_URL}/articles/${slug}` })
   return items
