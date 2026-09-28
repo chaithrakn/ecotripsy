@@ -4,8 +4,8 @@ as unresolved: TripForm-style selection happens in the browser, but the
 agent needs an OpenAI key that must never reach the browser, so something
 server-side has to sit in between.
 
-Run alongside `npm run dev`:
-    venv/Scripts/python api_server.py
+Run alongside `npm run dev`, from mcp-agent/:
+    python api_server.py
 
 Not deployed anywhere -- localhost only, for local learning/testing."""
 

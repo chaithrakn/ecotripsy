@@ -4,12 +4,19 @@ glue layer described in DESIGN.md's "Note on the MCP<->OpenAI bridge" --
 the two protocols use different tool-schema shapes, so something has to
 sit between them."""
 
+import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-SERVER_PARAMS = StdioServerParameters(command="venv/Scripts/python", args=["server.py"])
+# Launch server.py with whichever Python is running this file, and locate it
+# relative to this file, so it works without a venv and from any directory.
+SERVER_PARAMS = StdioServerParameters(
+    command=sys.executable,
+    args=[str(Path(__file__).parent / "server.py")],
+)
 
 
 def mcp_tool_to_openai_schema(tool) -> dict:

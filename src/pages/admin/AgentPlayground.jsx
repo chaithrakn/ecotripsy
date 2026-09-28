@@ -99,7 +99,7 @@ export default function AgentPlayground() {
     } catch (err) {
       setError(
         err.message === 'Failed to fetch'
-          ? 'Could not reach the agent server. In a terminal, run: cd mcp-agent && venv\\Scripts\\python api_server.py'
+          ? 'Could not reach the agent server. In a terminal, run: cd mcp-agent && python api_server.py'
           : err.message
       )
     } finally {
