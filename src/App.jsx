@@ -24,6 +24,7 @@ import ItineraryTemplateList from './pages/admin/ItineraryTemplateList'
 import ItineraryTemplateForm from './pages/admin/ItineraryTemplateForm'
 import ContentPageList from './pages/admin/ContentPageList'
 import ContentPageForm from './pages/admin/ContentPageForm'
+import AgentPlayground from './pages/admin/AgentPlayground'
 import { ENTITIES } from './lib/admin/entityConfigs'
 
 function App() {
@@ -64,6 +65,7 @@ function App() {
           <Route path="content_pages" element={<ContentPageList />} />
           <Route path="content_pages/new" element={<ContentPageForm />} />
           <Route path="content_pages/:id" element={<ContentPageForm />} />
+          <Route path="agent-playground" element={<AgentPlayground />} />
         </Route>
       </Routes>
       </AuthProvider>

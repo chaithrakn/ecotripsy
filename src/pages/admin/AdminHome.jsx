@@ -15,6 +15,12 @@ export default function AdminHome() {
             Manage {entity.label} →
           </Link>
         ))}
+        <Link
+          to="/admin/agent-playground"
+          style={{ fontSize: '15px', color: '#0F2E1D', fontWeight: 600, textDecoration: 'none' }}
+        >
+          Agent Playground →
+        </Link>
       </div>
     </div>
   )
